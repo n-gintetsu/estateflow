@@ -1,11 +1,14 @@
+'use client'
+import { useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+
 export default function Home() {
-  return (
-    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#f8fafc"}}>
-      <div style={{textAlign:"center"}}>
-        <div style={{fontSize:48}}>🏢</div>
-        <h1 style={{fontSize:32,fontWeight:"bold",color:"#1e40af",margin:"16px 0 8px"}}>EstateFlow</h1>
-        <p style={{color:"#64748b"}}>不動産管理システム　起動中！</p>
-      </div>
-    </div>
-  )
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) window.location.href = '/dashboard'
+      else window.location.href = '/login'
+    })
+  }, [])
+  return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>読み込み中...</div>
 }
