@@ -56,7 +56,7 @@ export default function Home() {
           </button>
         ))}
       
-      <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderRadius:10, border:'none', cursor:'pointer', marginTop:'auto', background:'transparent', color:'#ef4444', fontWeight:600, fontSize:14, textAlign:'left', width:'100%'}}>
+      <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderRadius:10, border:'none', cursor:'pointer', background:'transparent', color:'#ef4444', fontWeight:600, fontSize:14, textAlign:'left', width:'100%'}}>
             <span>🚪</span>ログアウト
           </button>
           </div> 
