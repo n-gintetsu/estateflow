@@ -40,6 +40,8 @@ export default function Home() {
       { id: "mail", label: "メール通知", icon: "📧" },
        { id: "users", label: "ユーザー管理", icon: "👥" },
         { id: "branches", label: "拠点管理", icon: "🏬" },
+  { id: "rental", label: "賃貸管理", icon: "🏠" },
+  { id: "investment", label: "収益物件管理", icon: "💰" },
   ];
 
   return (

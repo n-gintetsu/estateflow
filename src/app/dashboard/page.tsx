@@ -29,7 +29,9 @@ export default function Dashboard() {
     { name: 'LINE Bot', icon: '💬', path: '/line-bot', desc: 'LINE自動返信シミュレーター' },
     { name: 'メール管理', icon: '✉️', path: '/email', desc: 'メールテンプレート管理' },
     { name: 'ユーザー管理', icon: '👥', path: '/users', desc: 'スタッフアカウント管理' },
-    { name: '支店管理', icon: '🏢', path: '/branches', desc: '支店情報の管理' },
+    { name: '賃貸管理', icon: '🏠', path: '/rental', desc: '賃貸物件の登録・管理' },
+  { name: '収益物件管理', icon: '💰', path: '/investment', desc: '収益物件の登録・管理' },
+  { name: '支店管理', icon: '🏢', path: '/branches', desc: '支店情報の管理' },
   ]
 
   return (
