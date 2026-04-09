@@ -147,7 +147,7 @@ export default function InvestmentProperties() {
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <header style={{ background: '#7c3aed', color: 'white', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 20, fontWeight: 'bold' }}>💰 収益物件管理</span>
-        <button onClick={() => window.location.href = '/dashboard'} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>← ダッシュボード</button>
+        <button onClick={() => window.location.href = '/'} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>← ダッシュボード</button>
       </header>
 
       <main style={{ padding: 32, maxWidth: 1100, margin: '0 auto' }}>
