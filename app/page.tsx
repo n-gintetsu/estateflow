@@ -40,8 +40,8 @@ export default function Home() {
       { id: "mail", label: "メール通知", icon: "📧" },
        { id: "users", label: "ユーザー管理", icon: "👥" },
         { id: "branches", label: "拠点管理", icon: "🏬" },
-  { id: "rental", label: "賃貸管理", icon: "🏠" },
-  { id: "investment", label: "収益物件管理", icon: "💰" },
+  { id: "rental", label: "賃貸管理", icon: "🏠", href: "/rental" },
+  { id: "investment", label: "収益物件管理", icon: "💰", href: "/investment" },
   ];
 
   return (
@@ -53,7 +53,7 @@ export default function Home() {
           <span style={{fontWeight:"bold", color:"#1e293b"}}>EstateFlow</span>
         </div>
         {nav.map(n => (
-          <button key={n.id} onClick={() => setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:4, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:14, textAlign:"left"}}>
+          <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:4, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:14, textAlign:"left"}}>
             <span>{n.icon}</span>{n.label}
           </button>
         ))}
