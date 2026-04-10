@@ -34,12 +34,15 @@ export default function Properties() {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editItem, setEditItem] = useState<any>(null)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  const [pdfFile, setPdfFile] = useState<File|null>(null)
+  const [pdfUploading, setPdfUploading] = useState(false)
 
   const fetchProperties = async () => {
     setLoading(true)
@@ -79,6 +82,17 @@ export default function Properties() {
   }
 
   // 写真をSupabase Storageにアップロード
+  const uploadPdf = async (): Promise<string|null> => {
+    if (!pdfFile) return null
+    setPdfUploading(true)
+    const fileName = `pdf/${Date.now()}_${pdfFile.name}`
+    const { data, error } = await supabase.storage.from('property-images').upload(fileName, pdfFile, { contentType: 'application/pdf' })
+    setPdfUploading(false)
+    if (error) return null
+    const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
+    return urlData.publicUrl
+  }
+
   const uploadImages = async (): Promise<string[]> => {
     if (uploadFiles.length === 0) return []
     setUploading(true)
@@ -110,6 +124,7 @@ export default function Properties() {
 
     // 写真アップロード
     const imageUrls = await uploadImages()
+    const documentUrl = await uploadPdf()
 
     const payload = {
       name: form.name,
@@ -127,10 +142,25 @@ export default function Properties() {
       status: form.status,
       published: form.published,
       images: imageUrls.length > 0 ? imageUrls : null,
+      document_url: documentUrl || form.document_url || null,
     }
+      if (editItem) {
+    const { error } = await supabase.from('properties').update(payload).eq('id', editItem.id)
+    if (error) {
+      setMsg(`❌ エラー：${error.message}`)
+    } else {
+      setMsg('✅ 更新しました！')
+      setEditItem(null)
+      setForm({ ...emptyForm })
+      setUploadFiles([])
+      setUploadPreviews([])
+      setShowForm(false)
+      fetchProperties()
+    }
+  } else {
     const { error } = await supabase.from('properties').insert([payload])
     if (error) {
-      setMsg(`❌ エラー: ${error.message}`)
+      setMsg(`❌ エラー：${error.message}`)
     } else {
       setMsg('✅ 登録しました！')
       setForm({ ...emptyForm })
@@ -139,8 +169,9 @@ export default function Properties() {
       setShowForm(false)
       fetchProperties()
     }
-    setSaving(false)
   }
+  setSaving(false)
+}
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`「${name}」を削除しますか？`)) return
@@ -406,9 +437,14 @@ export default function Properties() {
                         {i.published ? '✅' : '🔒'}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
-                        <button
-                          onClick={() => handleDelete(i.id, i.name)}
-                          style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                  <button
+                    onClick={() => { setEditItem(i); setForm({ title: i.title || '', name: i.name || '', price: i.price || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', description: i.description || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', building_type: i.building_type || '', floor: i.floor || '', total_floors: i.total_floors || '', management_fee: i.management_fee || '', status: i.status || 'available', published: i.published || false }); setShowForm(true); }}
+                    style={{ background: '#e8f4fd', color: '#1a3a5c', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 6 }}
+                  >
+                    ✏️ 編集
+                  </button>
+                  <button
+                    onClick={() => handleDelete(i.id, i.name)}
                         >
                           削除
                         </button>
