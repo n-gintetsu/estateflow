@@ -233,6 +233,9 @@ export default function SchedulePage() {
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6, marginBottom: 14 }}>
                     <div style={{ fontSize: 13, color: '#374151', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span>👤</span> {item.customer_name}
+                  {item.notes && item.notes.includes('【仲介】') && (
+                    <span style={{ marginLeft: 6, background: '#dbeafe', color: '#1e40af', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>🤝 仲介</span>
+                  )}
                     </div>
                     <div style={{ fontSize: 13, color: '#374151', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span>📅</span>
