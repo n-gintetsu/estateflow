@@ -43,6 +43,7 @@ export default function Home() {
   { id: "rental", label: "賃貸管理", icon: "🏠", href: "/rental" },
   { id: "investment", label: "収益物件管理", icon: "💰", href: "/investment" },
   { id: "agents", label: "仲介業者管理", icon: "🤝", href: "/agents" },
+    { id: 'documents', label: "書類管理", icon: "📋", href: "/documents" },
   ];
 
   return (
