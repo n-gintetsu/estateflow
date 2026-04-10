@@ -1,4 +1,5 @@
 'use client'
+import QRCode from 'react-qr-code'
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
@@ -35,6 +36,7 @@ export default function Properties() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editItem, setEditItem] = useState<any>(null)
+  const [qrItem, setQrItem] = useState<any>(null)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
@@ -192,6 +194,18 @@ export default function Properties() {
     background: 'white', boxSizing: 'border-box' as const,
   }
   const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 4 }
+
+  const downloadQR = () => {
+    const svg = document.getElementById('qr-svg')
+    if (!svg) return
+    const svgData = new XMLSerializer().serializeToString(svg)
+    const canvas = document.createElement('canvas')
+    canvas.width = 300; canvas.height = 300
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    img.onload = () => { ctx?.drawImage(img, 0, 0); const a = document.createElement('a'); a.download = `QR_${qrItem?.name || 'property'}.png`; a.href = canvas.toDataURL('image/png'); a.click() }
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -363,10 +377,26 @@ export default function Properties() {
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" name="published" checked={form.published} onChange={handleChange} id="published" />
-                <label htmlFor="published" style={{ fontSize: 14, color: '#374151', cursor: 'pointer' }}>公開する（GINTETSUサイトに表示）</label>
-              </div>
+                      <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 8 }}>📄 物件資料PDF（仲介業者向け）</label>
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+            style={{ fontSize: 13, color: '#374151' }}
+          />
+          {pdfFile && <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>✅ {pdfFile.name}</span>}
+          {editItem?.document_url && !pdfFile && (
+            <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
+              📎 現在のPDF: <a href={editItem.document_url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>確認する</a>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input type="checkbox" name="published" checked={form.published} onChange={handleChange} id="published" />
+          <label htmlFor="published" style={{ fontSize: 14, color: '#374151', cursor: 'pointer' }}>公開する（GINTETSUサイトに表示）</label>
+        </div>
             </div>
 
             <div style={{ marginTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -438,6 +468,12 @@ export default function Properties() {
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                   <button
+                    onClick={() => setQrItem(i)}
+                    style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 6 }}
+                  >
+                    📱 QR
+                  </button>
+                  <button
                     onClick={() => { setEditItem(i); setForm({ title: i.title || '', name: i.name || '', price: i.price || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', description: i.description || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', building_type: i.building_type || '', floor: i.floor || '', total_floors: i.total_floors || '', management_fee: i.management_fee || '', status: i.status || 'available', published: i.published || false }); setShowForm(true); }}
                     style={{ background: '#e8f4fd', color: '#1a3a5c', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 6 }}
                   >
@@ -456,6 +492,25 @@ export default function Properties() {
             </table>
           )}
         </div>
+
+      {/* QRコードモーダル */}
+      {qrItem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: 12, padding: 32, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ color: '#1a3a5c', marginBottom: 8, fontSize: 18 }}>📱 QRコード</h3>
+            <p style={{ color: '#6b7280', fontSize: 13, marginBottom: 16 }}>{qrItem.name || qrItem.title}</p>
+            <QRCode id="qr-svg" value={`https://gintetsu-fudosan-v2.vercel.app/agent`} size={200} />
+            <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'center' }}>
+              <button onClick={downloadQR} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
+                ⬇️ ダウンロード
+              </button>
+              <button onClick={() => setQrItem(null)} style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '10px 20px', borderRadius: 8, cursor: 'pointer' }}>
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </main>
     </div>
   )
