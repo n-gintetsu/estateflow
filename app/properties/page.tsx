@@ -67,7 +67,11 @@ export default function Properties() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
-    setUploadFiles(prev => [...prev, ...files])
+    setUploadFiles(prev => {
+      const combined = [...prev, ...files]
+      if (combined.length > 20) { alert('写真は最大20枚まで登録できます'); return prev }
+      return combined
+    })
     files.forEach(file => {
       const reader = new FileReader()
       reader.onload = (ev) => {
@@ -346,13 +350,13 @@ export default function Properties() {
 
                 {/* プレビュー */}
                 {uploadPreviews.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 10, marginTop: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 12 }}>
                     {uploadPreviews.map((preview, i) => (
                       <div key={i} style={{ position: 'relative' }}>
                         <img
                           src={preview}
                           alt={`写真${i + 1}`}
-                          style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 6, border: '1px solid #e5e7eb' }}
+                          style={{ width: '100%', height: 150, objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }}
                         />
                         <button
                           onClick={() => removePhoto(i)}
