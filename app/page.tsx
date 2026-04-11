@@ -44,6 +44,7 @@ export default function Home() {
   { id: "investment", label: "収益物件管理", icon: "💰", href: "/investment" },
   { id: "agents", label: "仲介業者管理", icon: "🤝", href: "/agents" },
     { id: 'documents', label: "書類管理", icon: "📋", href: "/documents" },
+  { id: 'analytics', label: "分析", icon: "📊", href: "/analytics" },
   { id: 'columns', label: "コラム管理", icon: "✍️", href: "/columns" },
   { id: 'news', label: "お知らせ管理", icon: "📢", href: "/news" },
   { id: 'promo', label: "PromoIQ", icon: "🤖", href: "/promo" },
