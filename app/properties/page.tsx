@@ -148,7 +148,6 @@ export default function Properties() {
       status: form.status,
       published: form.published,
       images: imageUrls.length > 0 ? imageUrls : null,
-      document_url: documentUrl || form.document_url || null,
     }
       if (editItem) {
     const { error } = await supabase.from('properties').update(payload).eq('id', editItem.id)
