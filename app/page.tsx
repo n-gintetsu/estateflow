@@ -33,21 +33,24 @@ export default function Home() {
 
   const nav = [
     { id: "dashboard", label: "ダッシュボード", icon: "📊" },
-    { id: "properties", label: "物件管理", icon: "🏢" },
+    { divider: "── 物件管理 ──" },
+    { id: "properties", label: "売買物件", icon: "🏢" },
+    { id: "rental", label: "賃貸管理", icon: "🏠", href: "/rental" },
+    { id: "investment", label: "収益物件", icon: "💰", href: "/investment" },
+    { divider: "── 顧客対応 ──" },
     { id: "inquiries", label: "問い合わせ", icon: "💬" },
-     { id: "schedule", label: "内見スケジュール", icon: "📅" },
-      { id: "linebot", label: "LINE Bot", icon: "💚" },
-      { id: "mail", label: "メール通知", icon: "📧" },
-       { id: "users", label: "ユーザー管理", icon: "👥" },
-        { id: "branches", label: "拠点管理", icon: "🏬" },
-  { id: "rental", label: "賃貸管理", icon: "🏠", href: "/rental" },
-  { id: "investment", label: "収益物件管理", icon: "💰", href: "/investment" },
-  { id: "agents", label: "仲介業者管理", icon: "🤝", href: "/agents" },
-    { id: 'documents', label: "書類管理", icon: "📋", href: "/documents" },
-  { id: 'analytics', label: "分析", icon: "📊", href: "/analytics" },
-  { id: 'columns', label: "コラム管理", icon: "✍️", href: "/columns" },
-  { id: 'news', label: "お知らせ管理", icon: "📢", href: "/news" },
-  { id: 'promo', label: "PromoIQ", icon: "🤖", href: "/promo" },
+    { id: "schedule", label: "内見スケジュール", icon: "📅" },
+    { id: "agents", label: "仲介業者管理", icon: "🤝", href: "/agents" },
+    { divider: "── コンテンツ ──" },
+    { id: "columns", label: "コラム管理", icon: "✍️", href: "/columns" },
+    { id: "news", label: "お知らせ管理", icon: "📢", href: "/news" },
+    { id: "promo", label: "PromoIQ", icon: "🤖", href: "/promo" },
+    { divider: "── 管理 ──" },
+    { id: "documents", label: "書類管理", icon: "📋", href: "/documents" },
+    { id: "analytics", label: "分析", icon: "📊", href: "/analytics" },
+    { id: "users", label: "ユーザー管理", icon: "👥" },
+    { id: "linebot", label: "LINE Bot", icon: "💚" },
+    { id: "mail", label: "メール通知", icon: "📧" },
   ];
 
   return (
@@ -58,10 +61,14 @@ export default function Home() {
           <div style={{width:32, height:32, background:"#1e40af", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontWeight:"bold"}}>不</div>
           <span style={{fontWeight:"bold", color:"#1e293b"}}>EstateFlow</span>
         </div>
-        {nav.map(n => (
-          <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:4, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:14, textAlign:"left"}}>
+        {nav.map((n, i) => (
+          n.divider ? (
+            <div key={i} style={{fontSize:10, color:"#94a3b8", padding:"8px 12px 4px", fontWeight:600, letterSpacing:1}}>{n.divider}</div>
+          ) : (
+          <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:2, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
             <span>{n.icon}</span>{n.label}
           </button>
+          )
         ))}
       
       <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderRadius:10, border:'none', cursor:'pointer', background:'transparent', color:'#ef4444', fontWeight:600, fontSize:14, textAlign:'left', width:'100%'}}>
