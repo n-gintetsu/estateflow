@@ -55,38 +55,6 @@ export default function Home() {
 
   return (
     <div style={{display:"flex", height:"100vh", fontFamily:"sans-serif", background:"#f8fafc"}}>
-      {/* サイドバー */}
-      <div style={{width:200, background:"white", borderRight:"1px solid #e2e8f0", display:"flex", flexDirection:"column", padding:16}}>
-        <div style={{display:"flex", alignItems:"center", gap:8, marginBottom:24, padding:"8px 0"}}>
-          <div style={{width:32, height:32, background:"#1e40af", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontWeight:"bold"}}>不</div>
-          <span style={{fontWeight:"bold", color:"#1e293b"}}>EstateFlow</span>
-        </div>
-        <button onClick={() => setScreen("dashboard")} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:8, background: activeId === "dashboard" ? "#1e40af" : "transparent", color: activeId === "dashboard" ? "white" : "#475569", fontWeight: activeId === "dashboard" ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
-          <span>📊</span>ダッシュボード
-        </button>
-        {navGroups.map((group) => (
-          <div key={group.group} style={{marginBottom:4}}>
-            <button onClick={() => toggleGroup(group.group)} style={{display:"flex", alignItems:"center", justifyContent:"space-between", width:"100%", padding:"8px 12px", borderRadius:8, border:"none", cursor:"pointer", background:"#f1f5f9", color:"#374151", fontWeight:600, fontSize:12}}>
-              <span style={{display:"flex", alignItems:"center", gap:6}}><span>{group.icon}</span>{group.group}</span>
-              <span style={{fontSize:10}}>{openGroups.includes(group.group) ? "▲" : "▼"}</span>
-            </button>
-            {openGroups.includes(group.group) && (
-              <div style={{paddingLeft:8, marginTop:2}}>
-                {group.items.map((n: any) => (
-                  <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"8px 12px", borderRadius:8, border:"none", cursor:"pointer", marginBottom:1, background: activeId === n.id ? "#1e40af" : "transparent", color: activeId === n.id ? "white" : "#475569", fontWeight: activeId === n.id ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
-                    <span>{n.icon}</span>{n.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      
-      <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderRadius:10, border:'none', cursor:'pointer', background:'transparent', color:'#ef4444', fontWeight:600, fontSize:14, textAlign:'left', width:'100%'}}>
-            <span>🚪</span>ログアウト
-          </button>
-          </div> 
-
       {/* メインコンテンツ */}
       <div style={{flex:1, overflow:"auto", padding:24}}>
         {screen === "dashboard" && <Dashboard />}
