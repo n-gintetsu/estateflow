@@ -65,7 +65,7 @@ export default function Home() {
           n.divider ? (
             <div key={i} style={{fontSize:10, color:"#94a3b8", padding:"8px 12px 4px", fontWeight:600, letterSpacing:1}}>{n.divider}</div>
           ) : (
-          <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:2, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
+          <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id || '')} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:2, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
             <span>{n.icon}</span>{n.label}
           </button>
           )
