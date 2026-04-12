@@ -42,6 +42,9 @@ export default function LoginPage() {
         <button onClick={handleLogin} disabled={loading} style={{ width:'100%', padding:'12px 0', background:'#1e40af', color:'white', border:'none', borderRadius:10, fontSize:15, fontWeight:700, cursor:'pointer' }}>
           {loading ? 'ログイン中...' : 'ログイン'}
         </button>
+      <div style={{ marginTop: 16, textAlign: 'center' }}>
+        <a href="/reset-password" style={{ color: '#475569', fontSize: 13, textDecoration: 'none' }}>パスワードをお忘れの方はこちら</a>
+      </div>
       </div>
     </div>
   )

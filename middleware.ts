@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const isLoginPage = req.nextUrl.pathname === '/login'
+  const isLoginPage = req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/reset-password' || req.nextUrl.pathname === '/update-password'
   
   // Supabaseのセッションクッキーを確認
   const token = req.cookies.get('sb-cnhafquczeoxarliruvg-auth-token')?.value
