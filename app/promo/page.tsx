@@ -98,12 +98,18 @@ export default function PromoPage() {
         <div style={{ background: "white", borderRadius: 16, padding: 20, marginBottom: 16, border: "1px solid #e2e8f0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: "#1e293b", margin: 0 }}>生成結果</h3>
-            {result && (
-              <button onClick={saveToLibrary}
-                style={{ padding: "6px 16px", borderRadius: 8, border: "none", background: "#d1fae5", color: "#065f46", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                💾 ライブラリに保存
-              </button>
-            )}
+              {result && (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={saveToLibrary}
+                    style={{ padding: "6px 16px", borderRadius: 8, border: "none", background: "#d1fae5", color: "#065f46", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                    📋 ライブラリに保存
+                  </button>
+                  <button onClick={() => { navigator.clipboard.writeText(result); alert("コピーしました！"); }}
+                    style={{ padding: "6px 16px", borderRadius: 8, border: "none", background: "#dbeafe", color: "#1e40af", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                    📄 記事をコピー
+                  </button>
+                </div>
+              )}
           </div>
           {loading ? (
             <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>AIが生成中です...</div>
