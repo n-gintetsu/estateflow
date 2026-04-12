@@ -1,18 +1,25 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+const publicPaths = ['/login', '/reset-password', '/update-password']
+
 export async function middleware(req: NextRequest) {
-  const isLoginPage = req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/reset-password' || req.nextUrl.pathname === '/update-password'
+  const pathname = req.nextUrl.pathname
   
-  // Supabaseのセッションクッキーを確認
-  const token = req.cookies.get('sb-cnhafquczeoxarliruvg-auth-token')?.value
-  
-  if (!token && !isLoginPage) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  if (publicPaths.some(p => pathname.startsWith(p))) {
+    return NextResponse.next()
   }
 
-  if (token && isLoginPage) {
-    return NextResponse.redirect(new URL('/', req.url))
+  // Supabaseのクッキーをチェック（複数パターン対応）
+  const cookies = req.cookies.getAll()
+  const hasSession = cookies.some(c => 
+    c.name.includes('supabase') || 
+    c.name.includes('sb-') || 
+    c.name === 'supabase-auth-token'
+  )
+
+  if (!hasSession) {
+    return NextResponse.redirect(new URL('/login', req.url))
   }
 
   return NextResponse.next()
