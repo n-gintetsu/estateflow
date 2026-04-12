@@ -355,7 +355,7 @@ export default function Properties() {
                         <img
                           src={preview}
                           alt={`写真${i + 1}`}
-                          style={{ width: '100%', height: 150, objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }}
+                          style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }}
                         />
                         <button
                           onClick={() => removePhoto(i)}
