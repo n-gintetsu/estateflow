@@ -18,7 +18,8 @@ const nav = [
 ]
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  if (pathname === '/login') return <>{children}</>;
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
     <div style={{ width: 200, background: 'white', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', padding: 16, minHeight: '100vh' }}>
