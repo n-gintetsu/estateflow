@@ -2,7 +2,18 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../src/app/lib/supabase";
 
-// サンプルデータ削除済み - Supabaseから実データを取得
+const PROPERTIES = [
+  { id: 1, name: "パークタワー渋谷", address: "東京都渋谷区道玄坂1-1-1", price: 85000, area: 45.2, rooms: "1LDK", floor: 8, status: "募集中", type: "マンション", inquiries: 12, views: 340 },
+  { id: 2, name: "グランドハイツ新宿", address: "東京都新宿区西新宿2-3-4", price: 120000, area: 62.5, rooms: "2LDK", floor: 15, status: "申込中", type: "マンション", inquiries: 8, views: 210 },
+  { id: 3, name: "サンライズ目黒", address: "東京都目黒区目黒3-5-2", price: 95000, area: 52.0, rooms: "2DK", floor: 3, status: "募集中", type: "マンション", inquiries: 5, views: 180 },
+  { id: 4, name: "ブルースカイ品川", address: "東京都品川区大井1-7-3", price: 72000, area: 38.1, rooms: "1K", floor: 5, status: "募集中", type: "マンション", inquiries: 18, views: 420 },
+];
+
+const INQUIRIES = [
+  { id: 1, name: "田中 太郎", property: "パークタワー渋谷", date: "2026-03-18", status: "未対応", message: "内見を希望しています。週末は可能でしょうか？" },
+  { id: 2, name: "鈴木 花子", property: "グランドハイツ新宿", date: "2026-03-17", status: "対応中", message: "ペット可能かどうか確認したいです。" },
+  { id: 3, name: "佐藤 次郎", property: "ブルースカイ品川", date: "2026-03-16", status: "完了", message: "申込書類の準備が完了しました。" },
+];
 
 const Badge = ({ status }: { status: string }) => {
   const colors: { [key: string]: string } = {
@@ -113,7 +124,7 @@ function Dashboard() {
       <h1 style={{fontSize:24, fontWeight:"bold", color:"#1e293b", marginBottom:4}}>ダッシュボード</h1>
       <p style={{color:"#64748b", marginBottom:24}}>2026年3月22日</p>
       <div style={{display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:16, marginBottom:24}}>
-        {[["🏢","掲載物件数","-",""],["💬","資料請求数","-",""],["📅","内見スケジュール","-",""],["✅","今月成約","-",""]].map(([icon,label,val,sub]) => (
+        {[["🏢","掲載物件数","142","前月比 +8"],["💬","今月問い合わせ","87","前月比 +23%"],["📅","今月内見数","34","前月比 +12%"],["✅","今月成約","12","前月比 +3"]].map(([icon,label,val,sub]) => (
           <div key={label} style={{background:"white", borderRadius:16, padding:20, boxShadow:"0 1px 3px rgba(0,0,0,0.05)", border:"1px solid #f1f5f9"}}>
             <div style={{fontSize:24, marginBottom:8}}>{icon}</div>
             <div style={{fontSize:12, color:"#64748b", marginBottom:4}}>{label}</div>
@@ -124,7 +135,7 @@ function Dashboard() {
       </div>
       <div style={{background:"white", borderRadius:16, padding:20, boxShadow:"0 1px 3px rgba(0,0,0,0.05)", border:"1px solid #f1f5f9"}}>
         <h2 style={{fontSize:16, fontWeight:"bold", color:"#1e293b", marginBottom:16}}>最新問い合わせ</h2>
-        {[].map((inq: any) => (
+        {INQUIRIES.map(inq => (
           <div key={inq.id} style={{display:"flex", alignItems:"center", gap:12, padding:"12px 0", borderBottom:"1px solid #f8fafc"}}>
             <div style={{width:36, height:36, borderRadius:"50%", background:"#dbeafe", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:"bold", color:"#1e40af"}}>{inq.name[0]}</div>
             <div style={{flex:1}}>
@@ -149,7 +160,7 @@ function Properties() {
     };
     fetch();
   }, []);
-  const displayProperties = dbProperties;
+  const displayProperties = dbProperties.length > 0 ? dbProperties : PROPERTIES;
   return (
     <div>
       <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24}}>
@@ -181,13 +192,13 @@ function Properties() {
 }
 
 function Inquiries() {
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState(INQUIRIES[0]);
   return (
     <div>
       <h1 style={{fontSize:24, fontWeight:"bold", color:"#1e293b", marginBottom:24}}>問い合わせ管理</h1>
       <div style={{display:"flex", gap:16}}>
         <div style={{width:280, background:"white", borderRadius:16, border:"1px solid #e2e8f0", overflow:"hidden"}}>
-          {[].map((inq: any) => (
+          {INQUIRIES.map(inq => (
             <div key={inq.id} onClick={() => setSelected(inq)} style={{padding:16, cursor:"pointer", borderBottom:"1px solid #f8fafc", background: selected.id === inq.id ? "#eff6ff" : "white"}}>
               <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
                 <span style={{fontWeight:600, fontSize:14, color:"#1e293b"}}>{inq.name}</span>
@@ -211,7 +222,7 @@ function Inquiries() {
     </div>
   );
 }
-const SCHEDULES: any[] = [
+const SCHEDULES = [
   { id: 1, property: "パークタワー渋谷", client: "田中 太郎", date: "2026-03-22", time: "10:00", agent: "山本 担当", status: "確定" },
   { id: 2, property: "グランドハイツ新宿", client: "伊藤 良子", date: "2026-03-22", time: "14:00", agent: "佐々木 担当", status: "仮予約" },
   { id: 3, property: "サンライズ目黒", client: "渡辺 謙一", date: "2026-03-23", time: "11:00", agent: "山本 担当", status: "確定" },
@@ -597,7 +608,7 @@ function UserManagement() {
     </div>
   );
 }
-const BRANCHES: any[] = [
+const BRANCHES = [
   { id: 1, name: "渋谷支店", address: "東京都渋谷区道玄坂1-1", tel: "03-1111-2222", manager: "山本 太郎", agents: 8, properties: 42 },
   { id: 2, name: "新宿支店", address: "東京都新宿区西新宿2-3", tel: "03-3333-4444", manager: "中山 部長", agents: 12, properties: 67 },
   { id: 3, name: "品川支店", address: "東京都品川区大井1-7", tel: "03-5555-6666", manager: "岡田 部長", agents: 6, properties: 31 },
