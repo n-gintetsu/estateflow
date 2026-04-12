@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { supabase } from "../src/app/lib/supabase";
 
 // サンプルデータ削除済み - Supabaseから実データを取得
@@ -19,6 +20,8 @@ const Badge = ({ status }: { status: string }) => {
 
 export default function Home() {
   const [screen, setScreen] = useState("dashboard");
+  const pathname = usePathname();
+  const activeId = pathname === "/" ? "dashboard" : pathname.replace("/", "");
   const [openGroups, setOpenGroups] = useState<string[]>(["物件管理", "顧客対応", "コンテンツ", "管理"]);
   const toggleGroup = (group: string) => {
     setOpenGroups(prev => prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]);
@@ -58,7 +61,7 @@ export default function Home() {
           <div style={{width:32, height:32, background:"#1e40af", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontWeight:"bold"}}>不</div>
           <span style={{fontWeight:"bold", color:"#1e293b"}}>EstateFlow</span>
         </div>
-        <button onClick={() => setScreen("dashboard")} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:8, background: screen === "dashboard" ? "#1e40af" : "transparent", color: screen === "dashboard" ? "white" : "#475569", fontWeight: screen === "dashboard" ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
+        <button onClick={() => setScreen("dashboard")} style={{display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:10, border:"none", cursor:"pointer", marginBottom:8, background: activeId === "dashboard" ? "#1e40af" : "transparent", color: activeId === "dashboard" ? "white" : "#475569", fontWeight: activeId === "dashboard" ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
           <span>📊</span>ダッシュボード
         </button>
         {navGroups.map((group) => (
@@ -70,7 +73,7 @@ export default function Home() {
             {openGroups.includes(group.group) && (
               <div style={{paddingLeft:8, marginTop:2}}>
                 {group.items.map((n: any) => (
-                  <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"8px 12px", borderRadius:8, border:"none", cursor:"pointer", marginBottom:1, background: screen === n.id ? "#1e40af" : "transparent", color: screen === n.id ? "white" : "#475569", fontWeight: screen === n.id ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
+                  <button key={n.id} onClick={() => n.href ? window.location.href = n.href : setScreen(n.id)} style={{display:"flex", alignItems:"center", gap:8, padding:"8px 12px", borderRadius:8, border:"none", cursor:"pointer", marginBottom:1, background: activeId === n.id ? "#1e40af" : "transparent", color: activeId === n.id ? "white" : "#475569", fontWeight: activeId === n.id ? 600 : 400, fontSize:13, textAlign:"left", width:"100%"}}>
                     <span>{n.icon}</span>{n.label}
                   </button>
                 ))}
