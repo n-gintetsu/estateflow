@@ -1,4 +1,5 @@
 'use client'
+import Sidebar from '../layout-sidebar'
 import { useState, useEffect } from "react";
 import { supabase } from "../../src/app/lib/supabase";
 
@@ -44,7 +45,9 @@ export default function NewsPage() {
   };
 
   return (
-    <div style={{ padding: 24, fontFamily: "sans-serif", background: "#f8fafc", minHeight: "100vh" }}>
+    <div style={{ display: 'flex' }}>
+    <Sidebar />
+    <div style={{ flex: 1, padding: 24 }} style={{ padding: 24, fontFamily: "sans-serif", background: "#f8fafc", minHeight: "100vh" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: "bold", color: "#1e293b", margin: 0 }}>お知らせ管理</h1>

@@ -1,4 +1,5 @@
 'use client'
+import Sidebar from '../layout-sidebar'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
@@ -50,7 +51,9 @@ export default function ColumnsPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ display: 'flex' }}>
+    <Sidebar />
+    <div style={{ flex: 1, padding: 24 }} style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0 }}>コラム管理</h1>
