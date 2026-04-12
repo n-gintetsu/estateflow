@@ -483,10 +483,11 @@ export default function Properties() {
                     ✏️ 編集
                   </button>
                   <button
-                    onClick={() => handleDelete(i.id, i.name)}
-                        >
-                          削除
-                        </button>
+                  onClick={() => handleDelete(i.id, i.name)}
+                  style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 13, padding: "4px 8px" }}
+                  >
+                    削除
+                  </button>
                       </td>
                     </tr>
                   )
