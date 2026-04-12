@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import SidebarLayout from "./layout-sidebar";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
@@ -35,7 +36,7 @@ export default function RootLayout({
         gtag('js', new Date());
         gtag('config', 'G-9GL11H1C10');
       `}</Script>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><SidebarLayout>{children}</SidebarLayout></body>
     </html>
   );
 }

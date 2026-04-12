@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -16,9 +17,10 @@ const nav = [
   { href: '/analytics', icon: '📊', label: '分析' },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
     <div style={{ width: 200, background: 'white', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', padding: 16, minHeight: '100vh' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, padding: '8px 0' }}>
         <div style={{ width: 32, height: 32, background: '#1e40af', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>不</div>
@@ -30,5 +32,8 @@ export default function Sidebar() {
         </Link>
       ))}
     </div>
+    <div style={{ flex: 1, overflow: "auto" }}>{children}</div>
+    </div>
   )
 }
+
