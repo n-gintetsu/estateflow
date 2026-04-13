@@ -124,6 +124,7 @@ export default function LineBotPage() {
             { id: 'human', label: `🚨 人間対応待ち${stats.needsHuman > 0 ? ` (${stats.needsHuman})` : ''}` },
             { id: 'inbox', label: '📥 全受信履歴' },
             { id: 'auto', label: '⚙️ 自動返信設定' },
+            { id: 'vip', label: '⭐️既存顧客管理' },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id as any)}
               style={{ padding: '8px 20px', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? (t.id === 'human' ? '#dc2626' : '#06C755') : 'transparent', color: tab === t.id ? 'white' : '#374151' }}>
