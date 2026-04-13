@@ -31,12 +31,17 @@ export default function LineBotPage() {
   const [selected, setSelected] = useState<any>(null)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
-  const [tab, setTab] = useState<'human' | 'inbox' | 'auto'>('human')
+  const [tab, setTab] = useState<'human' | 'inbox' | 'auto' | 'vip'>('human')
   const [autoReplies, setAutoReplies] = useState(AUTO_REPLIES)
   const [newKeyword, setNewKeyword] = useState('')
   const [newReply, setNewReply] = useState('')
   const [newNeedsHuman, setNewNeedsHuman] = useState(false)
   const [staffName, setStaffName] = useState('')
+  const [vipUsers, setVipUsers] = useState<any[]>([])
+  const [vipUserId, setVipUserId] = useState('')
+  const [vipName, setVipName] = useState('')
+  const [vipNote, setVipNote] = useState('')
+  const [vipStaff, setVipStaff] = useState('')
 
   const fetchMessages = async () => {
     setLoading(true)
@@ -48,7 +53,12 @@ export default function LineBotPage() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchMessages() }, [])
+  const fetchVipUsers = async () => {
+    const { data } = await supabase.from('line_vip_users').select('*').order('created_at', { ascending: false })
+    setVipUsers(data || [])
+  }
+
+  useEffect(() => { fetchMessages(); fetchVipUsers() }, [])
 
   const humanMessages = messages.filter(m => m.needs_human && m.status !== 'human_handled')
 
@@ -296,6 +306,82 @@ export default function LineBotPage() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* VIP顧客管理タブ */}
+        {tab === 'vip' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#1a3a5c' }}>⭐️ 既存顧客登録（直接人間対応）</h3>
+              <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>登録したLINEユーザーからメッセージが来ると、AIをスキップして直接担当者に通知します。</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>LINE ユーザーID *</label>
+                  <input style={inp} value={vipUserId} onChange={e => setVipUserId(e.target.value)} placeholder="Uxxxxxxxxxxxxxxxxx" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>お客様名</label>
+                  <input style={inp} value={vipName} onChange={e => setVipName(e.target.value)} placeholder="例：山田 太郎 様" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>担当スタッフ名</label>
+                  <input style={inp} value={vipStaff} onChange={e => setVipStaff(e.target.value)} placeholder="例：小川" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>メモ</label>
+                  <input style={inp} value={vipNote} onChange={e => setVipNote(e.target.value)} placeholder="例：売却相談中・大宮区の物件" />
+                </div>
+              </div>
+              <button onClick={async () => {
+                if (!vipUserId) return alert('LINE ユーザーIDを入力してください')
+                await supabase.from('line_vip_users').upsert({
+                  user_id: vipUserId,
+                  display_name: vipName,
+                  assigned_staff: vipStaff,
+                  note: vipNote,
+                })
+                setVipUserId(''); setVipName(''); setVipStaff(''); setVipNote('')
+                await fetchVipUsers()
+                alert('登録しました！')
+              }} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '10px 24px', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+                登録する
+              </button>
+            </div>
+            <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#1a3a5c' }}>登録済み既存顧客一覧</h3>
+              {vipUsers.length === 0 ? (
+                <p style={{ color: '#9ca3af', textAlign: 'center', padding: 24 }}>登録済みの顧客はいません</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f9fafb' }}>
+                      {['お客様名', 'LINE ID', '担当', 'メモ', '操作'].map(h => (
+                        <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#6b7280' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vipUsers.map(v => (
+                      <tr key={v.id} style={{ borderTop: '1px solid #f3f4f6' }}>
+                        <td style={{ padding: '12px 16px', fontWeight: 600 }}>{v.display_name || '名前なし'}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 12, color: '#6b7280' }}>{v.user_id}</td>
+                        <td style={{ padding: '12px 16px' }}>{v.assigned_staff || '-'}</td>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: '#6b7280' }}>{v.note || '-'}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <button onClick={async () => {
+                            if (confirm('削除しますか？')) {
+                              await supabase.from('line_vip_users').delete().eq('id', v.id)
+                              await fetchVipUsers()
+                            }
+                          }} style={{ background: '#fee2e2', color: '#dc2626', border: 'none', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>削除</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         )}
 

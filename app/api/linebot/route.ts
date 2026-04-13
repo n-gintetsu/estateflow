@@ -33,6 +33,17 @@ async function getDisplayName(userId: string): Promise<string> {
   } catch { return '名前なし' }
 }
 
+
+// VIPユーザーチェック
+async function checkVipUser(userId: string) {
+  const { data } = await supabase
+    .from('line_vip_users')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+  return data
+}
+
 // 会話履歴を取得（直近10件）
 async function getConversationHistory(userId: string) {
   const { data } = await supabase
@@ -145,6 +156,23 @@ export async function POST(req: NextRequest) {
     }
 
     const userMessage = event.message.text
+
+    // VIPユーザーチェック（既存顧客は直接人間対応）
+    const vipUser = await checkVipUser(userId)
+    if (vipUser) {
+      await supabase.from('line_messages').insert({
+        user_id: userId,
+        display_name: displayName,
+        message_text: userMessage,
+        reply_text: `${vipUser.assigned_staff || '担当者'}へおつなぎします。`,
+        is_auto_reply: false,
+        needs_human: true,
+        status: 'pending',
+        replied_at: receivedAt,
+      })
+      await replyMessage(replyToken, `${displayName}様、いつもありがとうございます😊\n${vipUser.assigned_staff || '担当者'}へおつなぎします。少々お待ちください。\nお急ぎの場合は 048-606-4317 までお電話ください。`)
+      continue
+    }
 
     // キーワードマッチング（優先）
     const { data: keywords } = await supabase.from('line_keywords').select('*')
