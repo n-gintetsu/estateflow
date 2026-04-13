@@ -111,11 +111,12 @@ export async function POST(req: NextRequest) {
     // Supabaseにメッセージを保存
     await supabase.from('line_messages').insert({
       user_id: userId,
-      message: userMessage,
-      reply: replyText,
-      response_type: responseType,
+      message_text: userMessage,
+      reply_text: replyText,
+      is_auto_reply: responseType === 'ai',
+      needs_human: responseType === 'human',
       status: responseType === 'human' ? 'pending' : 'replied',
-      received_at: receivedAt,
+      replied_at: receivedAt,
     })
 
     // AI対応の場合は即返信、人間対応の場合は一時メッセージ
