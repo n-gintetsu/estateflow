@@ -57,6 +57,25 @@ export default function Home() {
         ))}
       </div>
 
+      {/* 外部リンク */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+        {[
+          { icon: '📊', label: 'Google Analytics', desc: 'アクセス解析・リアルタイム', url: 'https://analytics.google.com/analytics/web/#/a390991849p532556612/realtime/overview', color: '#f0fdf4', border: '#86efac' },
+          { icon: '🌐', label: 'GINTETSUサイト', desc: '公式ホームページを確認', url: 'https://gintetsu-fudosan.co.jp', color: '#eff6ff', border: '#93c5fd' },
+          { icon: '📅', label: '無料相談予約', desc: '予約状況を確認', url: 'https://gintetsu-fudosan.co.jp/reservation', color: '#fefce8', border: '#fde047' },
+        ].map(link => (
+          <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer"
+            style={{ background: link.color, borderRadius: 16, padding: 20, border: `1px solid ${link.border}`, textDecoration: 'none', display: 'block', transition: 'opacity 0.2s' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>{link.icon}</div>
+            <div style={{ fontSize: 15, fontWeight: 'bold', color: '#1e293b', marginBottom: 4 }}>{link.label}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{link.desc}</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>外部リンク →</div>
+          </a>
+        ))}
+      </div>
+
       {/* 最新資料請求 */}
       <div style={{ background: 'white', borderRadius: 16, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
         <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#1e293b', marginBottom: 16 }}>最新資料請求</h2>
