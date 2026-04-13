@@ -10,7 +10,6 @@ const supabase = createClient(
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET!
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN!
 
-// LINE署名検証
 function validateSignature(body: string, signature: string): boolean {
   const hash = crypto
     .createHmac('SHA256', LINE_CHANNEL_SECRET)
@@ -19,7 +18,6 @@ function validateSignature(body: string, signature: string): boolean {
   return hash === signature
 }
 
-// LINEにメッセージ送信
 async function replyMessage(replyToken: string, text: string) {
   await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
@@ -34,7 +32,19 @@ async function replyMessage(replyToken: string, text: string) {
   })
 }
 
-// AIで返信生成
+// LINEユーザーの表示名を取得
+async function getDisplayName(userId: string): Promise<string> {
+  try {
+    const res = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
+      headers: { Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}` },
+    })
+    const data = await res.json()
+    return data.displayName || '名前なし'
+  } catch {
+    return '名前なし'
+  }
+}
+
 async function generateAIReply(userMessage: string): Promise<string> {
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -50,8 +60,9 @@ async function generateAIReply(userMessage: string): Promise<string> {
         messages: [{ role: 'user', content: userMessage }],
         system: `あなたはGINTETSU不動産（さいたま市大宮区、電話048-606-4317）のLINE対応スタッフです。
 不動産売買・賃貸・空家対策・リースバック・相続のご相談に対応しています。
-返答は100文字以内で、丁寧かつ親しみやすい日本語でお答えください。
-詳しい相談は「無料相談を予約する」か「048-606-4317」への電話をご案内ください。`,
+返答は150文字以内で、丁寧かつ親しみやすい日本語でお答えください。
+詳しい相談は「無料相談を予約する」か「048-606-4317」への電話をご案内ください。
+積極的に無料相談や査定のご予約を促してください。`,
       }),
     })
     const data = await res.json()
@@ -65,7 +76,6 @@ export async function POST(req: NextRequest) {
   const body = await req.text()
   const signature = req.headers.get('x-line-signature') || ''
 
-  // 署名検証
   if (!validateSignature(body, signature)) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
@@ -74,17 +84,44 @@ export async function POST(req: NextRequest) {
   const events = data.events || []
 
   for (const event of events) {
-    if (event.type !== 'message' || event.message.type !== 'text') continue
+    if (event.type !== 'message') continue
 
-    const userMessage = event.message.text
     const userId = event.source.userId
     const replyToken = event.replyToken
     const receivedAt = new Date().toISOString()
+    const messageType = event.message.type
 
-    // キーワードマッチング（Supabaseのline_keywordsテーブルから取得）
-    const { data: keywords } = await supabase
-      .from('line_keywords')
-      .select('*')
+    // 表示名を取得
+    const displayName = await getDisplayName(userId)
+
+    // PDF・画像・ファイルは人間対応に振り分け
+    if (messageType !== 'text') {
+      let fileTypeLabel = 'ファイル'
+      if (messageType === 'image') fileTypeLabel = '画像'
+      else if (messageType === 'file') fileTypeLabel = 'ファイル・書類'
+      else if (messageType === 'video') fileTypeLabel = '動画'
+      else if (messageType === 'audio') fileTypeLabel = '音声'
+
+      await supabase.from('line_messages').insert({
+        user_id: userId,
+        display_name: displayName,
+        message_text: `【${fileTypeLabel}が送信されました】`,
+        reply_text: '担当スタッフへ引き継ぎます。少々お待ちください。',
+        is_auto_reply: false,
+        needs_human: true,
+        status: 'pending',
+        replied_at: receivedAt,
+      })
+
+      await replyMessage(replyToken, `${fileTypeLabel}を受け取りました。担当スタッフが確認の上、折り返しご連絡いたします。お電話でのご相談は 048-606-4317 まで。`)
+      continue
+    }
+
+    // テキストメッセージの処理
+    const userMessage = event.message.text
+
+    // キーワードマッチング
+    const { data: keywords } = await supabase.from('line_keywords').select('*')
 
     let matched = null
     if (keywords) {
@@ -101,16 +138,16 @@ export async function POST(req: NextRequest) {
 
     if (matched) {
       replyText = matched.reply_message
-      responseType = matched.response_type // 'ai' or 'human'
+      responseType = matched.response_type
     } else {
-      // マッチしない場合はAIで返信
       replyText = await generateAIReply(userMessage)
       responseType = 'ai'
     }
 
-    // Supabaseにメッセージを保存
+    // Supabaseに保存
     await supabase.from('line_messages').insert({
       user_id: userId,
+      display_name: displayName,
       message_text: userMessage,
       reply_text: replyText,
       is_auto_reply: responseType === 'ai',
@@ -119,7 +156,6 @@ export async function POST(req: NextRequest) {
       replied_at: receivedAt,
     })
 
-    // AI対応の場合は即返信、人間対応の場合は一時メッセージ
     if (responseType === 'human') {
       await replyMessage(replyToken, '担当スタッフへ引き継ぎます。少々お待ちください。まもなくご連絡いたします。')
     } else {
