@@ -132,6 +132,7 @@ export default function RentalProperties() {
     status: form.status, published: form.published,
     document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
       images: imageUrls.length > 0 ? imageUrls : (editItem?.images || null),
+    floor_plan_url: form.floor_plan_url || (editItem?.floor_plan_url || null),
     }
     let error
     if (editItem) {
