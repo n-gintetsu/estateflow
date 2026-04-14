@@ -22,7 +22,7 @@ export default function Inquiries() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#f8fafc' }}>
-              {['日時', '物件名', '氏名', 'メール', '種別', 'ステータス'].map(h => (
+              {['日時', '物件名', '氏名', 'メール', '電話番号', 'メッセージ', '種別', 'ステータス'].map(h => (
                 <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, color: '#475569', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
               ))}
             </tr>
@@ -34,6 +34,8 @@ export default function Inquiries() {
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.property_name || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.contact_name || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.email || '-'}</td>
+              <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.tel || '-'}</td>
+              <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.message || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.type || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.status || '未対応'}</td>
               </tr>
