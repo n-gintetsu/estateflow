@@ -23,6 +23,7 @@ const emptyForm = {
   description: '',
   status: 'available',
   published: true,
+  floor_plan_url: '',
 }
 
 export default function Properties() {
