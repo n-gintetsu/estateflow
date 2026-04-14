@@ -55,7 +55,7 @@ export default function ColumnsPage() {
     if (!form.title) return alert('先にタイトルを入力してください')
     setAiGenerating(true)
     try {
-      const res = await fetch('/api/generate-thumbnail', {
+      const res = await window.fetch('/api/generate-thumbnail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: form.title, category: form.category }),
