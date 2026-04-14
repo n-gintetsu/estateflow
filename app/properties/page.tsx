@@ -46,7 +46,7 @@ export default function Properties() {
   const [floorPlanPreview, setFloorPlanPreview] = useState<string>('')
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
-  const [pdfFile, setPdfFile] = useState<File|null>(null)
+  const [pdfFiles, setPdfFiles] = useState<File[]>([])
   const [pdfUploading, setPdfUploading] = useState(false)
 
   const fetchProperties = async () => {
@@ -91,14 +91,21 @@ export default function Properties() {
   }
 
   // 写真をSupabase Storageにアップロード
-  const uploadPdf = async (): Promise<string|null> => {
-    if (!pdfFile) return null
+  const uploadPdfs = async (): Promise<string[]> => {
+    if (pdfFiles.length === 0) return []
     setPdfUploading(true)
-    const fileName = `pdf/${Date.now()}_${pdfFile.name}`
-    const { data, error } = await supabase.storage.from('property-images').upload(fileName, pdfFile, { contentType: 'application/pdf' })
+    const urls: string[] = []
+    for (const file of pdfFiles) {
+      const fileName = `pdf/${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`
+      const { error } = await supabase.storage.from('property-images').upload(fileName, file, { contentType: 'application/pdf' })
+      if (!error) {
+        const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
+        urls.push(urlData.publicUrl)
+      }
+    }
     setPdfUploading(false)
-    if (error) return null
-    const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
+    return urls
+  }
     return urlData.publicUrl
   }
 
@@ -161,7 +168,7 @@ export default function Properties() {
       published: form.published,
       images: imageUrls.length > 0 ? imageUrls : (uploadPreviews.length > 0 ? uploadPreviews : null),
     floor_plan_url: floorPlanUrl,
-    document_url: documentUrl || editItem?.document_url || null,
+    document_urls: documentUrl.length > 0 ? documentUrl : (editItem?.document_urls || null),
     }
       if (editItem) {
     const { error } = await supabase.from('properties').update(payload).eq('id', editItem.id)
@@ -412,18 +419,39 @@ export default function Properties() {
               </div>
 
                       <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 8 }}>📄 物件資料PDF（仲介業者向け）</label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-            style={{ fontSize: 13, color: '#374151' }}
-          />
-          {pdfFile && <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>✅ {pdfFile.name}</span>}
-          {editItem?.document_url && !pdfFile && (
-            <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
-              📎 現在のPDF: <a href={editItem.document_url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>確認する</a>
-            </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 8 }}>📄 物件資料PDF（仲介業者向け・最大20ファイル）</label>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1e40af', color: 'white', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>
+              📎 PDFを選択
+              <input
+                type="file"
+                accept=".pdf"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || [])
+                  if (files.length > 20) { alert('PDFは最大20ファイルまでです'); return }
+                  setPdfFiles(files)
+                }}
+                style={{ display: 'none' }}
+              />
+            </label>
+            {pdfFiles.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                {pdfFiles.map((f, i) => (
+                  <div key={i} style={{ fontSize: 12, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    ✅ {f.name}
+                  </div>
+                ))}
+              </div>
+            )}
+            {editItem?.document_urls && pdfFiles.length === 0 && (
+              <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
+                {editItem.document_urls.map((url: string, i: number) => (
+                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
+                ))}
+              </div>
+            )}
+          </div>
           )}
         </div>
 
@@ -442,7 +470,7 @@ export default function Properties() {
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
               <button
-                onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setMsg('') }}
+                onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
               >
                 キャンセル
