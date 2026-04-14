@@ -131,18 +131,14 @@ export default function RentalProperties() {
       description: form.description || null,
     status: form.status, published: form.published,
     document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
-    images: imageUrls.length > 0 ? imageUrls : (editItem?.images || null),
+      images: imageUrls.length > 0 ? imageUrls : null,
+    }
+    const { error } = await supabase.from('rental_properties').insert([payload])
+    if (error) { setMsg(`❌ エラー: ${error.message}`) }
+    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+    setSaving(false)
   }
-  let error
-  if (editItem) {
-    const { error: e } = await supabase.from('rental_properties').update(payload).eq('id', editItem.id)
-    error = e
-  } else {
-    const { error: e } = await supabase.from('rental_properties').insert([payload])
-    error = e
-  }
-  if (error) { setMsg('❌ エラー：' + error.message) }
-  else { setMsg('✅ ' + (editItem ? '更新しました！' : '登録しました！')); setEditItem(null); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`「${name}」を削除しますか？`)) return
     await supabase.from('rental_properties').delete().eq('id', id)
@@ -280,7 +276,7 @@ export default function RentalProperties() {
             {editItem?.document_urls && pdfFiles.length === 0 && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
                 {editItem.document_urls.map((url: string, i: number) => (
-              <div key={i} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8, marginBottom: 4 }}><a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb' }}>📄 PDF{i+1}</a><button onClick={() => { const updated = [...(editItem.document_urls || [])]; updated.splice(i, 1); setEditItem({...editItem, document_urls: updated}) }} style={{ marginLeft: 4, background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 14 }}>×</button></div>
+                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
                 ))}
               </div>
             )}
@@ -374,7 +370,7 @@ export default function RentalProperties() {
             {editItem?.document_urls && pdfFiles.length === 0 && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
                 {editItem.document_urls.map((url: string, i: number) => (
-              <div key={i} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8, marginBottom: 4 }}><a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb' }}>📄 PDF{i+1}</a><button onClick={() => { const updated = [...(editItem.document_urls || [])]; updated.splice(i, 1); setEditItem({...editItem, document_urls: updated}) }} style={{ marginLeft: 4, background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 14 }}>×</button></div>
+                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
                 ))}
               </div>
             )}
@@ -474,5 +470,4 @@ export default function RentalProperties() {
     )}
     </div>
   )
-}
 }
