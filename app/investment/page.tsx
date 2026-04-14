@@ -433,6 +433,18 @@ export default function InvestmentProperties() {
               </div>
             </div>
 
+          <div style={{ marginTop: 16 }}>
+            <p style={lbl}>📄 販売図面PDF（最大20ファイル）</p>
+            <input type="file" accept=".pdf" multiple onChange={e => { const files = Array.from(e.target.files || []); setPdfFiles(prev => [...prev, ...files].slice(0, 20)) }} style={{ fontSize: 13 }} />
+            {pdfFiles.length > 0 && <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>📎 {pdfFiles.length}件選択中</span>}
+            {editItem?.document_urls && editItem.document_urls.length > 0 && pdfFiles.length === 0 && (
+              <div style={{ marginTop: 8 }}>
+                {editItem.document_urls.map((url: string, i: number) => (
+                  <a key={i} href={url} target="_blank" style={{ fontSize: 12, color: '#2563eb', marginRight: 8 }}>📄 PDF{i+1}</a>
+                ))}
+              </div>
+            )}
+          </div>
             <div style={{ marginTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
               <button onClick={handleSubmit} disabled={saving || uploading}
                 style={{ background: (saving || uploading) ? '#9ca3af' : '#7c3aed', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
