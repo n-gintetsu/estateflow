@@ -574,3 +574,4 @@ export default function Properties() {
       </main>
     </div>
   )
+}
