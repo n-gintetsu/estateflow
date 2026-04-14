@@ -440,7 +440,10 @@ export default function InvestmentProperties() {
             {editItem?.document_urls && editItem.document_urls.length > 0 && pdfFiles.length === 0 && (
               <div style={{ marginTop: 8 }}>
                 {editItem.document_urls.map((url: string, i: number) => (
-                  <a key={i} href={url} target="_blank" style={{ fontSize: 12, color: '#2563eb', marginRight: 8 }}>📄 PDF{i+1}</a>
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8, marginBottom: 4 }}>
+                    <a href={url} target="_blank" style={{ fontSize: 12, color: '#2563eb' }}>📄 PDF{i+1}</a>
+                    <button onClick={() => { const updated = [...editItem.document_urls]; updated.splice(i, 1); setEditItem({...editItem, document_urls: updated}) }} style={{ marginLeft: 4, background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>×</button>
+                  </span>
                 ))}
               </div>
             )}
