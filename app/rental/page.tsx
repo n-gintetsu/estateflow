@@ -34,6 +34,25 @@ export default function RentalProperties() {
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  const [pdfFiles, setPdfFiles] = useState<File[]>([])
+  const [pdfUploading, setPdfUploading] = useState(false)
+  const [qrItem, setQrItem] = useState<any>(null)
+
+  const uploadPdfs = async (): Promise<string[]> => {
+    if (pdfFiles.length === 0) return []
+    setPdfUploading(true)
+    const urls: string[] = []
+    for (const file of pdfFiles) {
+      const fileName = `pdf/${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`
+      const { error } = await supabase.storage.from('property-images').upload(fileName, file, { contentType: 'application/pdf' })
+      if (!error) {
+        const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
+        urls.push(urlData.publicUrl)
+      }
+    }
+    setPdfUploading(false)
+    return urls
+  }
 
   const fetchItems = async () => {
     setLoading(true)
@@ -107,12 +126,14 @@ export default function RentalProperties() {
       equipment: form.equipment ? form.equipment.split('、').map((s: string) => s.trim()).filter(Boolean) : null,
       features: form.features ? form.features.split('、').map((s: string) => s.trim()).filter(Boolean) : null,
       description: form.description || null,
-      status: form.status, published: form.published,
+      const documentUrls = await uploadPdfs()
+    status: form.status, published: form.published,
+    document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
       images: imageUrls.length > 0 ? imageUrls : null,
     }
     const { error } = await supabase.from('rental_properties').insert([payload])
     if (error) { setMsg(`❌ エラー: ${error.message}`) }
-    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setShowForm(false); fetchItems() }
+    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 
@@ -241,7 +262,24 @@ export default function RentalProperties() {
             {/* 条件・設備 */}
             <p style={sec}>🏠 条件・設備</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 20 }}>
+              <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 8 }}>📄 物件資料PDF（仲介業者向け・最大20ファイル）</label>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1e40af', color: 'white', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>
+              📎 PDFを選択
+              <input type="file" accept=".pdf" multiple onChange={(e) => { const files = Array.from(e.target.files || []); if (files.length > 20) { alert('PDFは最大20ファイルまでです'); return }; setPdfFiles(files) }} style={{ display: 'none' }} />
+            </label>
+            {pdfFiles.length > 0 && (
+              <div style={{ marginTop: 8 }}>{pdfFiles.map((f, i) => <div key={i} style={{ fontSize: 12, color: '#6b7280' }}>✅ {f.name}</div>)}</div>
+            )}
+            {editItem?.document_urls && pdfFiles.length === 0 && (
+              <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
+                {editItem.document_urls.map((url: string, i: number) => (
+                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 20 }}>
                 <input type="checkbox" name="pet_allowed" checked={form.pet_allowed} onChange={handleChange} id="pet" />
                 <label htmlFor="pet" style={{ fontSize: 14, cursor: 'pointer' }}>ペット可</label>
               </div>
@@ -303,7 +341,24 @@ export default function RentalProperties() {
                   <option value="sold">成約済</option>
                 </select>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 20 }}>
+              <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 8 }}>📄 物件資料PDF（仲介業者向け・最大20ファイル）</label>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1e40af', color: 'white', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>
+              📎 PDFを選択
+              <input type="file" accept=".pdf" multiple onChange={(e) => { const files = Array.from(e.target.files || []); if (files.length > 20) { alert('PDFは最大20ファイルまでです'); return }; setPdfFiles(files) }} style={{ display: 'none' }} />
+            </label>
+            {pdfFiles.length > 0 && (
+              <div style={{ marginTop: 8 }}>{pdfFiles.map((f, i) => <div key={i} style={{ fontSize: 12, color: '#6b7280' }}>✅ {f.name}</div>)}</div>
+            )}
+            {editItem?.document_urls && pdfFiles.length === 0 && (
+              <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
+                {editItem.document_urls.map((url: string, i: number) => (
+                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 20 }}>
                 <input type="checkbox" name="published" checked={form.published} onChange={handleChange} id="pub" />
                 <label htmlFor="pub" style={{ fontSize: 14, cursor: 'pointer' }}>公開する（サイトに表示）</label>
               </div>
@@ -314,7 +369,7 @@ export default function RentalProperties() {
                 style={{ background: (saving || uploading) ? '#9ca3af' : '#059669', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
-              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setMsg('') }}
+              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>
                 キャンセル
               </button>
@@ -363,12 +418,19 @@ export default function RentalProperties() {
                         <span style={{ background: s.bg, color: s.color, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{s.text}</span>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>{i.published ? '✅' : '🔒'}</td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <button onClick={() => handleDelete(i.id, i.name)}
-                          style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                          削除
-                        </button>
-                      </td>
+                <td style={{ padding: '14px 16px' }}>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button onClick={() => setQrItem(i)} style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                      📱 QR
+                    </button>
+                    <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', rent: i.rent || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', deposit: i.deposit || '', key_money: i.key_money || '', floor: i.floor || '', total_floors: i.total_floors || '', building_type: i.building_type || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', management_fee: i.management_fee || '', built_year: i.built_year || '', pet_allowed: i.pet_allowed || false, parking: i.parking || '', fire_insurance: i.fire_insurance || '', guarantee_company: i.guarantee_company || '', key_exchange: i.key_exchange || '', equipment: i.equipment || '', features: i.features || '', description: i.description || '', status: i.status || 'available', published: i.published || false }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }} style={{ background: '#e8f4fd', color: '#1a3a5c', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                      ✏️ 編集
+                    </button>
+                    <button onClick={() => handleDelete(i.id, i.name)} style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                      削除
+                    </button>
+                  </div>
+                </td>
                     </tr>
                   )
                 })}
@@ -377,6 +439,18 @@ export default function RentalProperties() {
           )}
         </div>
       </main>
+    {qrItem && (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div style={{ background: 'white', borderRadius: 12, padding: 32, textAlign: 'center', minWidth: 280 }}>
+          <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>📱 QRコード</div>
+          <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>{qrItem.name}</div>
+          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/rental/' + qrItem.id : '')}`} alt="QR" style={{ width: 200, height: 200, borderRadius: 8 }} />
+          <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <button onClick={() => setQrItem(null)} style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>閉じる</button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   )
 }
