@@ -37,6 +37,7 @@ export default function RentalProperties() {
   const [pdfFiles, setPdfFiles] = useState<File[]>([])
   const [pdfUploading, setPdfUploading] = useState(false)
   const [qrItem, setQrItem] = useState<any>(null)
+  const [editItem, setEditItem] = useState<any>(null)
 
   const uploadPdfs = async (): Promise<string[]> => {
     if (pdfFiles.length === 0) return []
