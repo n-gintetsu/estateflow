@@ -149,9 +149,16 @@ export default function InvestmentProperties() {
       images: imageUrls.length > 0 ? imageUrls : null,
       document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
     }
-    const { error } = await supabase.from('investment_properties').insert([payload])
-    if (error) { setMsg(`❌ エラー: ${error.message}`) }
-    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+    let error
+    if (editItem) {
+      const { error: e } = await supabase.from('investment_properties').update(payload).eq('id', editItem.id)
+      error = e
+    } else {
+      const { error: e } = await supabase.from('investment_properties').insert([payload])
+      error = e
+    }
+    if (error) { setMsg('❌ エラー：' + error.message) }
+    else { setMsg('✅ ' + (editItem ? '更新しました！' : '登録しました！')); setEditItem(null); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 
@@ -510,7 +517,7 @@ export default function InvestmentProperties() {
           <div style={{ background: 'white', borderRadius: 12, padding: 32, textAlign: 'center', maxWidth: 300 }}>
             <h3 style={{ marginBottom: 16, color: '#1e293b' }}>📱 QRコード</h3>
             <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>{qrItem.name}</p>
-            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/investment/' + qrItem.id : '')}`} alt="QR" style={{ width: 200, height: 200, borderRadius: 8 }} />
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? 'https://gintetsu-fudosan.co.jp/investment/' + qrItem.id : '')}`} alt="QR" style={{ width: 200, height: 200, borderRadius: 8 }} />
             <br />
             <button onClick={() => setQrItem(null)} style={{ marginTop: 16, background: '#f1f5f9', color: '#374151', border: 'none', padding: '8px 24px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>閉じる</button>
           </div>
