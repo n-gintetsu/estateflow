@@ -94,10 +94,21 @@ export default function EmailPage() {
     if (!testEmail) { setTestMsg('❌ メールアドレスを入力してください'); return }
     setSending(true)
     setTestMsg('')
-    // 実際のメール送信はAPIルートで行う（ここではSimulate）
-    await new Promise(r => setTimeout(r, 1000))
-    setTestMsg(`✅ ${testEmail} にテスト送信しました（※実装後に実際に送信されます）`)
-    setSending(false)
+    try {
+      const res = await fetch('/api/email-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: testEmail }),
+      })
+      if (res.ok) {
+        setTestMsg(`✅ ${testEmail} にテスト送信しました`)
+      } else {
+        const data = await res.json()
+        setTestMsg(`❌ 送信失敗：${data.error}`)
+      }
+    } catch {
+      setTestMsg('❌ 送信エラーが発生しました')
+    }
   }
 
   const inp = { width: '100%', padding: '9px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }
