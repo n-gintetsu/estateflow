@@ -41,6 +41,8 @@ export default function Properties() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
+  const [floorPlanFile, setFloorPlanFile] = useState<File|null>(null)
+  const [floorPlanPreview, setFloorPlanPreview] = useState<string>('')
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
   const [pdfFile, setPdfFile] = useState<File|null>(null)
@@ -130,6 +132,15 @@ export default function Properties() {
 
     // 写真アップロード
     const imageUrls = await uploadImages()
+  // 間取り図アップロード
+  let floorPlanUrl = form.floor_plan_url || null
+  if (floorPlanFile) {
+    const ext = floorPlanFile.name.split('.').pop()
+    const path = `floor-plans/${Date.now()}.${ext}`
+    await supabase.storage.from('property-images').upload(path, floorPlanFile, { contentType: floorPlanFile.type })
+    const { data: fpData } = supabase.storage.from('property-images').getPublicUrl(path)
+    floorPlanUrl = fpData.publicUrl
+  }
     const documentUrl = await uploadPdf()
 
     const payload = {
@@ -148,6 +159,7 @@ export default function Properties() {
       status: form.status,
       published: form.published,
       images: imageUrls.length > 0 ? imageUrls : null,
+    floor_plan_url: floorPlanUrl,
     }
       if (editItem) {
     const { error } = await supabase.from('properties').update(payload).eq('id', editItem.id)
@@ -312,7 +324,24 @@ export default function Properties() {
                 <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }} name="description" value={form.description} onChange={handleChange} placeholder="物件の説明・セールスポイントを入力" />
               </div>
 
-              {/* 写真アップロード */}
+              {/* 間取り図アップロード */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={labelStyle}>間取り図（1枚）</label>
+              <div style={{ border: '2px dashed #d1d5db', borderRadius: 8, padding: 16, textAlign: 'center', background: '#f9fafb', cursor: 'pointer' }}
+                onClick={() => document.getElementById('floorplan-upload')?.click()}>
+                {floorPlanPreview ? (
+                  <img src={floorPlanPreview} alt="間取り図" style={{ maxHeight: 200, margin: '0 auto', display: 'block', borderRadius: 4 }} />
+                ) : (
+                  <>
+                    <div style={{ fontSize: 28, marginBottom: 4 }}>🏠</div>
+                    <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>クリックして間取り図を追加</p>
+                  </>
+                )}
+              </div>
+              <input id="floorplan-upload" type="file" accept="image/*" style={{ display: 'none' }}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) { setFloorPlanFile(f); const r = new FileReader(); r.onload = (ev) => setFloorPlanPreview(ev.target?.result as string); r.readAsDataURL(f) }}} />
+            </div>
+            {/* 写真アップロード */}
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>物件写真（複数選択可）</label>
                 <div style={{
