@@ -15,6 +15,7 @@ const emptyForm = {
   pet_allowed: false, parking: '',
   fire_insurance: '', guarantee_company: '', key_exchange: '',
   equipment: '', features: '', description: '',
+  floor_plan_url: '',
   status: 'available', published: true,
 }
 
@@ -299,7 +300,22 @@ export default function RentalProperties() {
             </div>
 
             {/* 写真アップロード */}
-            <p style={sec}>📷 物件写真</p>
+            <p style={sec}>🗺️ 間取り図（1枚）</p>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: 8, padding: 16, marginBottom: 16, textAlign: 'center' }}>
+            <input type="file" accept="image/*" onChange={async e => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              const ext = file.name.split('.').pop()
+              const fileName = `rental/floorplan-${Date.now()}.${ext}`
+              const { error } = await supabase.storage.from('property-images').upload(fileName, file, { contentType: file.type })
+              if (!error) {
+                const { data } = supabase.storage.from('property-images').getPublicUrl(fileName)
+                setForm(prev => ({ ...prev, floor_plan_url: data.publicUrl }))
+              }
+            }} style={{ fontSize: 13 }} />
+            {form.floor_plan_url && <div style={{ marginTop: 8 }}><img src={form.floor_plan_url} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 4 }} /></div>}
+          </div>
+          <p style={sec}>📷 物件写真</p>
             <div style={{ border: '2px dashed #d1d5db', borderRadius: 8, padding: 20, textAlign: 'center', background: '#f9fafb', cursor: 'pointer' }}
               onClick={() => document.getElementById('rental-photo')?.click()}
               onDragOver={(e) => e.preventDefault()}
@@ -445,7 +461,7 @@ export default function RentalProperties() {
         <div style={{ background: 'white', borderRadius: 12, padding: 32, textAlign: 'center', minWidth: 280 }}>
           <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>📱 QRコード</div>
           <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>{qrItem.name}</div>
-          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/rental/' + qrItem.id : '')}`} alt="QR" style={{ width: 200, height: 200, borderRadius: 8 }} />
+          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? 'https://gintetsu-fudosan.co.jp/agent' : '')}`} alt="QR" style={{ width: 200, height: 200, borderRadius: 8 }} />
           <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'center' }}>
             <button onClick={() => setQrItem(null)} style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>閉じる</button>
           </div>
