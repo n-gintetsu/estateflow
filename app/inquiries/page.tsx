@@ -32,7 +32,7 @@ export default function Inquiries() {
               <tr key={i.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                 <td style={{ padding: '12px 16px', fontSize: 13, color: '#64748b' }}>{new Date(i.created_at).toLocaleDateString('ja-JP')}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.property_name || '-'}</td>
-                <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.name || '-'}</td>
+                <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.contact_name || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.email || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.type || '-'}</td>
                 <td style={{ padding: '12px 16px', fontSize: 13 }}>{i.status || '未対応'}</td>
