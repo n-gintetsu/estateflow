@@ -147,7 +147,7 @@ export default function Properties() {
     const { data: fpData } = supabase.storage.from('property-images').getPublicUrl(path)
     floorPlanUrl = fpData.publicUrl
   }
-    const documentUrl = await uploadPdf()
+    const documentUrl = await uploadPdfs()
 
     const payload = {
       name: form.name,
