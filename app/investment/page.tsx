@@ -19,6 +19,7 @@ const emptyForm = {
   city_planning: '', use_district: '', other_regulations: '',
   reform_history: '', loan_simulation: '', remarks: '',
   features: '', description: '',
+  floor_plan_url: '',
   status: 'available', published: true,
 }
 
@@ -147,6 +148,7 @@ export default function InvestmentProperties() {
       description: form.description || null,
       status: form.status, published: form.published,
       images: imageUrls.length > 0 ? imageUrls : (editItem?.images || null),
+      floor_plan_url: form.floor_plan_url || null,
       document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
     }
     let error
@@ -384,7 +386,22 @@ export default function InvestmentProperties() {
             </div>
 
             {/* 写真 */}
-            <p style={sec}>📷 物件写真</p>
+            <p style={sec}>🗺️ 間取り図（1枚）</p>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: 8, padding: 16, marginBottom: 16, textAlign: 'center' }}>
+            <input type="file" accept="image/*" onChange={async e => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              const ext = file.name.split('.').pop()
+              const fileName = `investment/floorplan-${Date.now()}.${ext}`
+              const { error } = await supabase.storage.from('property-images').upload(fileName, file, { contentType: file.type })
+              if (!error) {
+                const { data } = supabase.storage.from('property-images').getPublicUrl(fileName)
+                setForm(prev => ({ ...prev, floor_plan_url: data.publicUrl }))
+              }
+            }} style={{ fontSize: 13 }} />
+            {form.floor_plan_url && <div style={{ marginTop: 8 }}><img src={form.floor_plan_url} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 4 }} /></div>}
+          </div>
+          <p style={sec}>📷 物件写真</p>
             <div style={{ border: '2px dashed #d1d5db', borderRadius: 8, padding: 20, textAlign: 'center', background: '#f9fafb', cursor: 'pointer' }}
               onClick={() => document.getElementById('invest-photo')?.click()}
               onDragOver={(e) => e.preventDefault()}
@@ -505,7 +522,7 @@ export default function InvestmentProperties() {
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>{i.published ? '✅' : '🔒'}</td>
                       <td style={{ padding: '14px 16px' }}>
-                <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', address: i.address || '', price: String(i.price || ''), yield_rate: String(i.yield_rate || ''), building_type: i.building_type || '', built_year: String(i.built_year || ''), structure: i.structure || '', total_units: String(i.total_units || ''), occupied_units: String(i.occupied_units || ''), monthly_income: String(i.monthly_income || ''), area: String(i.area || ''), land_area: String(i.land_area || ''), nearest_station: i.nearest_station || '', walk_minutes: String(i.walk_minutes || ''), management_company: i.management_company || '', management_type: i.management_type || '', management_fee: String(i.management_fee || ''), repair_reserve: String(i.repair_reserve || ''), land_right: i.land_right || '', shared_ownership: i.shared_ownership || '', exclusive_area: String(i.exclusive_area || ''), water: i.water || '', electricity: i.electricity || '', gas: i.gas || '', road_frontage: i.road_frontage || '', fixed_asset_tax: String(i.fixed_asset_tax || ''), land_area_registry: String(i.land_area_registry || ''), city_planning: i.city_planning || '', use_district: i.use_district || '', other_regulations: i.other_regulations || '', reform_history: i.reform_history || '', loan_simulation: i.loan_simulation || '', remarks: i.remarks || '', features: i.features ? i.features.join('、') : '', description: i.description || '', status: i.status || 'available', published: i.published ?? true }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }}
+                <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', address: i.address || '', price: String(i.price || ''), yield_rate: String(i.yield_rate || ''), building_type: i.building_type || '', built_year: String(i.built_year || ''), structure: i.structure || '', total_units: String(i.total_units || ''), occupied_units: String(i.occupied_units || ''), monthly_income: String(i.monthly_income || ''), area: String(i.area || ''), land_area: String(i.land_area || ''), nearest_station: i.nearest_station || '', walk_minutes: String(i.walk_minutes || ''), management_company: i.management_company || '', management_type: i.management_type || '', management_fee: String(i.management_fee || ''), repair_reserve: String(i.repair_reserve || ''), land_right: i.land_right || '', shared_ownership: i.shared_ownership || '', exclusive_area: String(i.exclusive_area || ''), water: i.water || '', electricity: i.electricity || '', gas: i.gas || '', road_frontage: i.road_frontage || '', fixed_asset_tax: String(i.fixed_asset_tax || ''), land_area_registry: String(i.land_area_registry || ''), city_planning: i.city_planning || '', use_district: i.use_district || '', other_regulations: i.other_regulations || '', reform_history: i.reform_history || '', loan_simulation: i.loan_simulation || '', remarks: i.remarks || '', features: i.features ? i.features.join('、') : '', description: i.description || '', status: i.status || 'available', published: i.published ?? true, floor_plan_url: i.floor_plan_url || '' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }}
                   style={{ background: '#e8f4fd', color: '#1a6aad', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 4 }}>
                   編集
                 </button>
