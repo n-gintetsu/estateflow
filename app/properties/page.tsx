@@ -106,8 +106,6 @@ export default function Properties() {
     setPdfUploading(false)
     return urls
   }
-    return urlData.publicUrl
-  }
 
   const uploadImages = async (): Promise<string[]> => {
     if (uploadFiles.length === 0) return uploadPreviews
