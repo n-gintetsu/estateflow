@@ -131,9 +131,16 @@ export default function RentalProperties() {
       description: form.description || null,
     status: form.status, published: form.published,
     document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
-      images: imageUrls.length > 0 ? imageUrls : null,
+      images: imageUrls.length > 0 ? imageUrls : (editItem?.images || null),
     }
-    const { error } = await supabase.from('rental_properties').insert([payload])
+    let error
+    if (editItem) {
+      const { error: e } = await supabase.from('rental_properties').update(payload).eq('id', editItem.id)
+      error = e
+    } else {
+      const { error: e } = await supabase.from('rental_properties').insert([payload])
+      error = e
+    }
     if (error) { setMsg(`❌ エラー: ${error.message}`) }
     else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
