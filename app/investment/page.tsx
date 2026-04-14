@@ -496,6 +496,18 @@ export default function InvestmentProperties() {
           )}
         </div>
       </main>
+
+      {qrItem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: 12, padding: 32, textAlign: 'center', maxWidth: 300 }}>
+            <h3 style={{ marginBottom: 16, color: '#1e293b' }}>📱 QRコード</h3>
+            <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>{qrItem.name}</p>
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/investment/' + qrItem.id : '')}`} alt="QR" style={{ width: 200, height: 200, borderRadius: 8 }} />
+            <br />
+            <button onClick={() => setQrItem(null)} style={{ marginTop: 16, background: '#f1f5f9', color: '#374151', border: 'none', padding: '8px 24px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>閉じる</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
