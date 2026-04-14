@@ -452,7 +452,6 @@ export default function Properties() {
               </div>
             )}
           </div>
-          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
