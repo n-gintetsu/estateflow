@@ -105,6 +105,7 @@ export default function RentalProperties() {
     setSaving(true)
     setMsg('')
     const imageUrls = await uploadImages()
+      const documentUrls = await uploadPdfs()
     const payload = {
       name: form.name, address: form.address,
       rent: form.rent ? Number(form.rent) : null,
@@ -126,7 +127,6 @@ export default function RentalProperties() {
       equipment: form.equipment ? form.equipment.split('、').map((s: string) => s.trim()).filter(Boolean) : null,
       features: form.features ? form.features.split('、').map((s: string) => s.trim()).filter(Boolean) : null,
       description: form.description || null,
-      const documentUrls = await uploadPdfs()
     status: form.status, published: form.published,
     document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
       images: imageUrls.length > 0 ? imageUrls : null,
