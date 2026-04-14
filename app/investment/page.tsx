@@ -38,6 +38,10 @@ export default function InvestmentProperties() {
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  const [pdfFiles, setPdfFiles] = useState<File[]>([])
+  const [pdfUploading, setPdfUploading] = useState(false)
+  const [editItem, setEditItem] = useState<any>(null)
+  const [qrItem, setQrItem] = useState<any>(null)
 
   const fetchItems = async () => {
     setLoading(true)
@@ -85,11 +89,29 @@ export default function InvestmentProperties() {
     return urls
   }
 
+  const uploadPdfs = async (): Promise<string[]> => {
+    if (pdfFiles.length === 0) return []
+    setPdfUploading(true)
+    const urls: string[] = []
+    for (const file of pdfFiles) {
+      const ext = file.name.split('.').pop()
+      const fileName = `investment/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error } = await supabase.storage.from('property-images').upload(fileName, file, { contentType: file.type })
+      if (!error) {
+        const { data } = supabase.storage.from('property-images').getPublicUrl(fileName)
+        urls.push(data.publicUrl)
+      }
+    }
+    setPdfUploading(false)
+    return urls
+  }
+
   const handleSubmit = async () => {
     if (!form.name || !form.address) { setMsg('❌ 物件名と住所は必須です'); return }
     setSaving(true)
     setMsg('')
     const imageUrls = await uploadImages()
+    const documentUrls = await uploadPdfs()
     const payload = {
       name: form.name, address: form.address,
       price: form.price ? Number(form.price) : null,
@@ -125,10 +147,11 @@ export default function InvestmentProperties() {
       description: form.description || null,
       status: form.status, published: form.published,
       images: imageUrls.length > 0 ? imageUrls : null,
+      document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
     }
     const { error } = await supabase.from('investment_properties').insert([payload])
     if (error) { setMsg(`❌ エラー: ${error.message}`) }
-    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setShowForm(false); fetchItems() }
+    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 
