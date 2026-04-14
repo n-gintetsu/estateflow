@@ -146,7 +146,7 @@ export default function InvestmentProperties() {
       features: form.features ? form.features.split('、').map((s: string) => s.trim()).filter(Boolean) : null,
       description: form.description || null,
       status: form.status, published: form.published,
-      images: imageUrls.length > 0 ? imageUrls : null,
+      images: imageUrls.length > 0 ? imageUrls : (editItem?.images || null),
       document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
     }
     let error
