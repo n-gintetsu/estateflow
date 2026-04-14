@@ -103,7 +103,7 @@ export default function Properties() {
   }
 
   const uploadImages = async (): Promise<string[]> => {
-    if (uploadFiles.length === 0) return []
+    if (uploadFiles.length === 0) return uploadPreviews
     setUploading(true)
     const urls: string[] = []
     for (const file of uploadFiles) {
@@ -159,7 +159,7 @@ export default function Properties() {
       description: form.description || null,
       status: form.status,
       published: form.published,
-      images: imageUrls.length > 0 ? imageUrls : null,
+      images: imageUrls.length > 0 ? imageUrls : (uploadPreviews.length > 0 ? uploadPreviews : null),
     floor_plan_url: floorPlanUrl,
     }
       if (editItem) {
