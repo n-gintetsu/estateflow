@@ -17,7 +17,7 @@ export default function LoginPage() {
     if (error) {
       setError('メールアドレスまたはパスワードが正しくありません')
     } else {
-      await new Promise(r => setTimeout(r, 500))
+      await new Promise(r => setTimeout(r, 2000))
       window.location.href = '/dashboard'
     }
     setLoading(false)
