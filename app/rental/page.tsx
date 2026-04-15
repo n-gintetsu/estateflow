@@ -284,7 +284,7 @@ export default function RentalProperties() {
             {editItem?.document_urls && pdfFiles.length === 0 && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
                 {editItem.document_urls.map((url: string, i: number) => (
-                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
+                    <div key={i} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8, marginBottom: 4 }}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb' }}>PDF {i+1}</a><button onClick={() => { const updated = [...(editItem.document_urls || [])]; updated.splice(i, 1); setEditItem({...editItem, document_urls: updated}) }} style={{ marginLeft: 4, background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 14 }}>×</button></div>
                 ))}
               </div>
             )}
@@ -378,7 +378,7 @@ export default function RentalProperties() {
             {editItem?.document_urls && pdfFiles.length === 0 && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#1a3a5c' }}>
                 {editItem.document_urls.map((url: string, i: number) => (
-                  <div key={i}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ color: '#1a3a5c' }}>PDF {i+1} を確認する</a></div>
+                    <div key={i} style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8, marginBottom: 4 }}>📎 <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#2563eb' }}>PDF {i+1}</a><button onClick={() => { const updated = [...(editItem.document_urls || [])]; updated.splice(i, 1); setEditItem({...editItem, document_urls: updated}) }} style={{ marginLeft: 4, background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 14 }}>×</button></div>
                 ))}
               </div>
             )}
