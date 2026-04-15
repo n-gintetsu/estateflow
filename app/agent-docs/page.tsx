@@ -50,7 +50,8 @@ export default function AgentDocsPage() {
     if (editItem) {
       await supabase.from('agent_documents').update(form).eq('id', editItem.id)
     } else {
-      await supabase.from('agent_documents').insert([{ ...form, is_active: true }])
+      const { error } = await supabase.from('agent_documents').insert([{ ...form, is_active: true }])
+      if (error) { setMsg('保存エラー: ' + error.message); return }
     }
     setShowForm(false); setEditItem(null)
     setForm({ title: '', description: '', file_url: '', sort_order: 0 })
