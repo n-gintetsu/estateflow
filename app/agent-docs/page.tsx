@@ -34,7 +34,8 @@ export default function AgentDocsPage() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const fileName = `agent-docs/${Date.now()}-${file.name}`
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const fileName = `agent-docs/${Date.now()}-${safeName}`
     const { data, error } = await supabase.storage.from('property-images').upload(fileName, file)
     if (error) { setMsg('アップロードエラー: ' + error.message); setUploading(false); return }
     const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
