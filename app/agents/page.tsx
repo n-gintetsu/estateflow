@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -8,6 +9,7 @@ const supabase = createClient(
 )
 
 export default function AgentsPage() {
+  const router = useRouter()
   const [agents, setAgents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -85,6 +87,8 @@ export default function AgentsPage() {
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => { setEditItem(a); setForm({ agent_code: a.agent_code, password: a.password, company_name: a.company_name, contact_name: a.contact_name||'', email: a.email||'', phone: a.phone||'', is_active: a.is_active }); setShowForm(true) }}
                         style={{ padding: '4px 12px', background: '#f1f5f9', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>編集</button>
+                              <button onClick={() => router.push(`/agents/${a.id}`)}
+                                style={{ padding: '4px 12px', background: '#dbeafe', color: '#1d4ed8', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>詳細</button>
                       <button onClick={() => handleDelete(a.id)}
                         style={{ padding: '4px 12px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>削除</button>
                     </div>
