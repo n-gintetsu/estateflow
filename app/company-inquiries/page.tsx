@@ -18,6 +18,7 @@ type Inquiry = {
   mobile_phone: string
   email: string
   business_card_url: string
+  inquiry_content: string
   status: string
   internal_memo: string
   created_at: string
