@@ -20,7 +20,8 @@ const emptyForm = {
   reform_history: '', loan_simulation: '', remarks: '',
   features: '', description: '',
   floor_plan_url: '',
-  status: 'available', published: true,
+  status: 'available', published: true,,
+  visibility: 'public'
 }
 
 export default function InvestmentProperties() {
