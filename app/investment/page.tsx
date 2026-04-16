@@ -161,8 +161,7 @@ export default function InvestmentProperties() {
       error = e
     }
     if (error) { setMsg('❌ エラー：' + error.message) }
-    else { setMsg('✅ ' + (editItem ? '更新しました！' : '登録しました！')); setEditItem(null); setForm({ ...emptyForm,
-              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+    else { setMsg('✅ ' + (editItem ? '更新しました！' : '登録しました！')); setEditItem(null); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 

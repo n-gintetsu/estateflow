@@ -176,8 +176,7 @@ export default function Properties() {
     } else {
       setMsg('✅ 更新しました！')
       setEditItem(null)
-      setForm({ ...emptyForm,
-              visibility: i.visibility || 'public' })
+      setForm({ ...emptyForm })
       setUploadFiles([])
       setUploadPreviews([])
       setShowForm(false)

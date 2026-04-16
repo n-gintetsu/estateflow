@@ -144,8 +144,7 @@ export default function RentalProperties() {
       error = e
     }
     if (error) { setMsg(`❌ エラー: ${error.message}`) }
-    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm,
-              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 
