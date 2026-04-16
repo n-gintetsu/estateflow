@@ -161,7 +161,8 @@ export default function InvestmentProperties() {
       error = e
     }
     if (error) { setMsg('❌ エラー：' + error.message) }
-    else { setMsg('✅ ' + (editItem ? '更新しました！' : '登録しました！')); setEditItem(null); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+    else { setMsg('✅ ' + (editItem ? '更新しました！' : '登録しました！')); setEditItem(null); setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 
@@ -481,7 +482,8 @@ export default function InvestmentProperties() {
                 style={{ background: (saving || uploading) ? '#9ca3af' : '#7c3aed', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
-              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setMsg('') }}
+              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>
                 キャンセル
               </button>
@@ -533,7 +535,8 @@ export default function InvestmentProperties() {
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>{i.published ? '✅' : '🔒'}</td>
                       <td style={{ padding: '14px 16px' }}>
-                <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', address: i.address || '', price: String(i.price || ''), yield_rate: String(i.yield_rate || ''), building_type: i.building_type || '', built_year: String(i.built_year || ''), structure: i.structure || '', total_units: String(i.total_units || ''), occupied_units: String(i.occupied_units || ''), monthly_income: String(i.monthly_income || ''), area: String(i.area || ''), land_area: String(i.land_area || ''), nearest_station: i.nearest_station || '', walk_minutes: String(i.walk_minutes || ''), management_company: i.management_company || '', management_type: i.management_type || '', management_fee: String(i.management_fee || ''), repair_reserve: String(i.repair_reserve || ''), land_right: i.land_right || '', shared_ownership: i.shared_ownership || '', exclusive_area: String(i.exclusive_area || ''), water: i.water || '', electricity: i.electricity || '', gas: i.gas || '', road_frontage: i.road_frontage || '', fixed_asset_tax: String(i.fixed_asset_tax || ''), land_area_registry: String(i.land_area_registry || ''), city_planning: i.city_planning || '', use_district: i.use_district || '', other_regulations: i.other_regulations || '', reform_history: i.reform_history || '', loan_simulation: i.loan_simulation || '', remarks: i.remarks || '', features: i.features ? i.features.join('、') : '', description: i.description || '', status: i.status || 'available', published: i.published ?? true, floor_plan_url: i.floor_plan_url || '' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }}
+                <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', address: i.address || '', price: String(i.price || ''), yield_rate: String(i.yield_rate || ''), building_type: i.building_type || '', built_year: String(i.built_year || ''), structure: i.structure || '', total_units: String(i.total_units || ''), occupied_units: String(i.occupied_units || ''), monthly_income: String(i.monthly_income || ''), area: String(i.area || ''), land_area: String(i.land_area || ''), nearest_station: i.nearest_station || '', walk_minutes: String(i.walk_minutes || ''), management_company: i.management_company || '', management_type: i.management_type || '', management_fee: String(i.management_fee || ''), repair_reserve: String(i.repair_reserve || ''), land_right: i.land_right || '', shared_ownership: i.shared_ownership || '', exclusive_area: String(i.exclusive_area || ''), water: i.water || '', electricity: i.electricity || '', gas: i.gas || '', road_frontage: i.road_frontage || '', fixed_asset_tax: String(i.fixed_asset_tax || ''), land_area_registry: String(i.land_area_registry || ''), city_planning: i.city_planning || '', use_district: i.use_district || '', other_regulations: i.other_regulations || '', reform_history: i.reform_history || '', loan_simulation: i.loan_simulation || '', remarks: i.remarks || '', features: i.features ? i.features.join('、') : '', description: i.description || '', status: i.status || 'available', published: i.published ?? true, floor_plan_url: i.floor_plan_url || '',
+              visibility: i.visibility || 'public' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }}
                   style={{ background: '#e8f4fd', color: '#1a6aad', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 4 }}>
                   編集
                 </button>

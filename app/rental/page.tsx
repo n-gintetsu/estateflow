@@ -144,7 +144,8 @@ export default function RentalProperties() {
       error = e
     }
     if (error) { setMsg(`❌ エラー: ${error.message}`) }
-    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
+    else { setMsg('✅ 登録しました！'); setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems() }
     setSaving(false)
   }
 
@@ -405,7 +406,8 @@ export default function RentalProperties() {
                 style={{ background: (saving || uploading) ? '#9ca3af' : '#059669', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
-              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
+              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>
                 キャンセル
               </button>
@@ -459,7 +461,8 @@ export default function RentalProperties() {
                     <button onClick={() => setQrItem(i)} style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                       📱 QR
                     </button>
-                    <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', rent: i.rent || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', deposit: i.deposit || '', key_money: i.key_money || '', floor: i.floor || '', total_floors: i.total_floors || '', building_type: i.building_type || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', management_fee: i.management_fee || '', built_year: i.built_year || '', pet_allowed: i.pet_allowed || false, parking: i.parking || '', fire_insurance: i.fire_insurance || '', guarantee_company: i.guarantee_company || '', key_exchange: i.key_exchange || '', equipment: i.equipment || '', features: i.features || '', description: i.description || '', status: i.status || 'available', published: i.published || false, floor_plan_url: i.floor_plan_url || '' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }} style={{ background: '#e8f4fd', color: '#1a3a5c', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                    <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', rent: i.rent || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', deposit: i.deposit || '', key_money: i.key_money || '', floor: i.floor || '', total_floors: i.total_floors || '', building_type: i.building_type || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', management_fee: i.management_fee || '', built_year: i.built_year || '', pet_allowed: i.pet_allowed || false, parking: i.parking || '', fire_insurance: i.fire_insurance || '', guarantee_company: i.guarantee_company || '', key_exchange: i.key_exchange || '', equipment: i.equipment || '', features: i.features || '', description: i.description || '', status: i.status || 'available', published: i.published || false, floor_plan_url: i.floor_plan_url || '',
+              visibility: i.visibility || 'public' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }} style={{ background: '#e8f4fd', color: '#1a3a5c', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                       ✏️ 編集
                     </button>
                     <button onClick={() => handleDelete(i.id, i.name)} style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>

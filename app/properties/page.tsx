@@ -176,7 +176,8 @@ export default function Properties() {
     } else {
       setMsg('✅ 更新しました！')
       setEditItem(null)
-      setForm({ ...emptyForm })
+      setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' })
       setUploadFiles([])
       setUploadPreviews([])
       setShowForm(false)
@@ -188,7 +189,8 @@ export default function Properties() {
       setMsg(`❌ エラー：${error.message}`)
     } else {
       setMsg('✅ 登録しました！')
-      setForm({ ...emptyForm })
+      setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' })
       setUploadFiles([])
       setUploadPreviews([])
       setShowForm(false)
@@ -473,7 +475,8 @@ export default function Properties() {
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
               <button
-                onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
+                onClick={() => { setShowForm(false); setForm({ ...emptyForm,
+              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
               >
                 キャンセル
@@ -539,7 +542,8 @@ export default function Properties() {
                     📱 QR
                   </button>
                   <button
-                    onClick={() => { setEditItem(i); setForm({ name: i.name || '', price: i.price || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', description: i.description || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', building_type: i.building_type || '', floor: i.floor || '', total_floors: i.total_floors || '', management_fee: i.management_fee || '', status: i.status || 'available', published: i.published || false, floor_plan_url: i.floor_plan_url || '' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); if (i.floor_plan_url) setFloorPlanPreview(i.floor_plan_url); setShowForm(true); }}
+                    onClick={() => { setEditItem(i); setForm({ name: i.name || '', price: i.price || '', address: i.address || '', area: i.area || '', rooms: i.rooms || '', description: i.description || '', nearest_station: i.nearest_station || '', walk_minutes: i.walk_minutes || '', building_type: i.building_type || '', floor: i.floor || '', total_floors: i.total_floors || '', management_fee: i.management_fee || '', status: i.status || 'available', published: i.published || false, floor_plan_url: i.floor_plan_url || '',
+              visibility: i.visibility || 'public' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); if (i.floor_plan_url) setFloorPlanPreview(i.floor_plan_url); setShowForm(true); }}
                     style={{ background: '#e8f4fd', color: '#1a3a5c', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 6 }}
                   >
                     ✏️ 編集
