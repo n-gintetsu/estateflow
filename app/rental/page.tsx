@@ -16,7 +16,7 @@ const emptyForm = {
   fire_insurance: '', guarantee_company: '', key_exchange: '',
   equipment: '', features: '', description: '',
   floor_plan_url: '',
-  status: 'available', published: true,,
+  status: 'available', published: true,
   visibility: 'public'
 }
 
