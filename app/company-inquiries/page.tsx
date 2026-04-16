@@ -59,11 +59,13 @@ export default function CompanyInquiriesPage() {
   }
 
   const saveMemo = async () => {
-    if (!selected) return
+    if (!selected) { alert('選択されていません'); return }
     setSaving(true)
-    await supabase.from('company_inquiries').update({ internal_memo: memo }).eq('id', selected.id)
+    const { error } = await supabase.from('company_inquiries').update({ internal_memo: memo }).eq('id', selected.id)
+    if (error) { alert('保存失敗: ' + error.message); setSaving(false); return }
     setInquiries(prev => prev.map(i => i.id === selected.id ? { ...i, internal_memo: memo } : i))
     setSaving(false)
+    alert('保存しました！')
   }
 
   const openDetail = (inquiry: Inquiry) => {
