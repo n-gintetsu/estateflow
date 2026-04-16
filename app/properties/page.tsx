@@ -452,9 +452,14 @@ export default function Properties() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input type="checkbox" name="published" checked={form.published} onChange={handleChange} id="published" />
-          <label htmlFor="published" style={{ fontSize: 14, color: '#374151', cursor: 'pointer' }}>公開する（GINTETSUサイトに表示）</label>
+        <div>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>公開範囲</label>
+          <select name="visibility" value={form.visibility || 'public'} onChange={handleChange}
+            style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, width: '100%' }}>
+            <option value="public">🌐 一般公開（GINTETSUサイトに表示）</option>
+            <option value="agent">🤝 仲介業者のみ（業者ダッシュボードのみ）</option>
+            <option value="both">📢 両方に掲載（サイト＋業者ダッシュボード）</option>
+          </select>
         </div>
             </div>
 
