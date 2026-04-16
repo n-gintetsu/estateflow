@@ -15,6 +15,7 @@ const navGroups = [
     { id: 'agents', label: '仲介業者管理', icon: '🤝', href: '/agents' },
     { id: 'agent-docs', label: '各種書類管理', icon: '📂', href: '/agent-docs' },
     { id: 'property-progress', label: '物件進捗管理', icon: '📊', href: '/property-progress' },
+    { id: 'company-inquiries', label: '企業者問い合わせ', icon: '🏢', href: '/company-inquiries' },
   ]},
   { group: 'コンテンツ', icon: '✏️', items: [
     { id: 'columns', label: 'コラム管理', icon: '✏️', href: '/columns' },
