@@ -472,9 +472,8 @@ export default function Properties() {
               >
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
-              <button
-                onClick={() => { setShowForm(false); setForm({ ...emptyForm,
-              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
+                <button
+                  onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
               >
                 キャンセル
