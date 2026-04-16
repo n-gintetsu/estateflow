@@ -481,8 +481,7 @@ export default function InvestmentProperties() {
                 style={{ background: (saving || uploading) ? '#9ca3af' : '#7c3aed', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
               </button>
-              <button onClick={() => { setShowForm(false); setForm({ ...emptyForm,
-              visibility: i.visibility || 'public' }); setUploadFiles([]); setUploadPreviews([]); setMsg('') }}
+                <button onClick={() => { setShowForm(false); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setMsg('') }}
                 style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '12px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>
                 キャンセル
               </button>
