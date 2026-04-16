@@ -389,7 +389,17 @@ export default function RentalProperties() {
               </div>
             </div>
 
-            <div style={{ marginTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>公開範囲</label>
+          <select name="visibility" value={form.visibility || 'public'} onChange={handleChange}
+            style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, width: '100%' }}>
+            <option value="public">🌐 一般公開（GINTETSUサイトに表示）</option>
+            <option value="agent">🤝 仲介業者のみ（業者ダッシュボードのみ）</option>
+            <option value="both">📢 両方に掲載（サイト＋業者ダッシュボード）</option>
+          </select>
+        </div>
+
+<div style={{ marginTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
               <button onClick={handleSubmit} disabled={saving || uploading}
                 style={{ background: (saving || uploading) ? '#9ca3af' : '#059669', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
                 {uploading ? '写真アップロード中...' : saving ? '登録中...' : '✓ 登録する'}
