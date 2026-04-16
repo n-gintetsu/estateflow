@@ -178,6 +178,7 @@ export default function CompanyInquiriesPage() {
                 { label: '担当者名', value: selected.contact_name },
                 { label: '携帯番号', value: selected.mobile_phone },
                 { label: 'メール', value: selected.email },
+              { label: 'お問い合わせ内容', value: selected.inquiry_content },
               ].map(item => (
                 <div key={item.label} style={{ fontSize: 13 }}>
                   <span style={{ color: '#9ca3af', marginRight: 8 }}>{item.label}</span>
