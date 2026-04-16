@@ -234,7 +234,7 @@ export default function CompanyInquiriesPage() {
               />
               <button
                 onClick={saveMemo}
-                disabled={saving}
+                disabled={false}
                 style={{ marginTop: 8, background: '#1a3a5c', color: '#fff', border: 'none', padding: '8px 24px', borderRadius: 50, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}
               >
                 {saving ? '保存中...' : '💾 保存'}
