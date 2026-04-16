@@ -188,8 +188,7 @@ export default function Properties() {
       setMsg(`❌ エラー：${error.message}`)
     } else {
       setMsg('✅ 登録しました！')
-      setForm({ ...emptyForm,
-              visibility: i.visibility || 'public' })
+        setForm({ ...emptyForm })
       setUploadFiles([])
       setUploadPreviews([])
       setShowForm(false)
