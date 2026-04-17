@@ -27,6 +27,7 @@ const navGroups = [
     { id: 'analytics', label: '分析', icon: '📊', href: '/analytics' },
     { id: 'linebot', label: 'LINE Bot', icon: '💚', href: '/line-bot' },
     { id: 'mail', label: 'メール通知', icon: '📧', href: '/email' },
+    { id: 'staff', label: 'スタッフ管理', icon: '👥', href: '/staff' },
   ]},
 ]
 
