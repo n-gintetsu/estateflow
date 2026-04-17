@@ -45,22 +45,21 @@ export default function StaffPage() {
       setMsg('⚠️ 全項目を入力してください')
       return
     }
+    if (form.password.length < 8) {
+      setMsg('⚠️ パスワードは8文字以上で入力してください')
+      return
+    }
     setSaving(true)
     setMsg('')
     try {
-      // Supabase Authにユーザー作成
-      const { data: authData, error: authError } = await supabase.auth.admin
-        ? { data: null, error: { message: 'admin API not available on client' } }
-        : { data: null, error: { message: 'use server-side' } }
-
-      // staff_usersテーブルに登録（Auth側はSupabaseダッシュボードで手動追加）
-      const { error } = await supabase.from('staff_users').insert({
-        email: form.email,
-        name: form.name,
-        role: form.role,
+      const res = await fetch('/api/create-staff', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, name: form.name, role: form.role, password: form.password }),
       })
-      if (error) throw error
-      setMsg('✅ スタッフを追加しました！（Supabase AuthへのユーザーはAuth管理画面から追加してください）')
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || '追加に失敗しました')
+      setMsg('✅ スタッフを追加しました！')
       setForm(emptyForm)
       setShowForm(false)
       fetchStaff()
@@ -126,11 +125,6 @@ export default function StaffPage() {
                 <option value="admin">管理者</option>
               </select>
             </div>
-          </div>
-          <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#92400e' }}>
-            ⚠️ スタッフ追加後、<strong>Supabase Auth管理画面</strong>でも同じメールアドレスのユーザーを作成してください。
-            <br />
-            <a href="https://supabase.com/dashboard/project/cnhafquczeoxarliruvg/auth/users" target="_blank" style={{ color: '#b45309' }}>→ Supabase Auth管理画面を開く</a>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button onClick={handleAdd} disabled={saving}
