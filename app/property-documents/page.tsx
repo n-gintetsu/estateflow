@@ -53,6 +53,18 @@ export default function PropertyDocumentsPage() {
   const [properties, setProperties] = useState<PropertyOption[]>([])
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({
+    property_type: 'sale' as PropertyType,
+    property_id: 0,
+    title: '',
+    description: '',
+    document_type: 'material' as DocumentType,
+    visible_to_public: false,
+    visible_to_agent: true,
+  })
+  const [file, setFile] = useState<File | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -82,6 +94,70 @@ export default function PropertyDocumentsPage() {
     setLoading(false)
   }
 
+  const handleDocTypeChange = (type: DocumentType) => {
+    setForm(f => ({
+      ...f,
+      document_type: type,
+      visible_to_public: type === 'guide' ? false : f.visible_to_public,
+    }))
+  }
+
+  const handleSubmit = async () => {
+    if (!form.title || !form.property_id) {
+      alert('物件とタイトルは必須です')
+      return
+    }
+    if (!file) {
+      alert('PDFファイルを選択してください')
+      return
+    }
+    setSaving(true)
+    try {
+      const fileName = Date.now() + '_' + file.name
+      const { error: upErr } = await supabase.storage
+        .from('property-images')
+        .upload('documents/' + fileName, file, { contentType: file.type })
+      if (upErr) throw upErr
+      const { data: urlData } = supabase.storage
+        .from('property-images')
+        .getPublicUrl('documents/' + fileName)
+      const file_url = urlData.publicUrl
+
+      const { error } = await supabase.from('property_documents').insert([{
+        property_type: form.property_type,
+        property_id: form.property_id,
+        title: form.title,
+        description: form.description || null,
+        file_url: file_url,
+        document_type: form.document_type,
+        visible_to_public: form.visible_to_public,
+        visible_to_agent: form.visible_to_agent,
+      }])
+      if (error) throw error
+
+      resetForm()
+      loadData()
+    } catch (e: any) {
+      alert('エラー: ' + (e.message || e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const resetForm = () => {
+    setForm({
+      property_type: 'sale',
+      property_id: 0,
+      title: '',
+      description: '',
+      document_type: 'material',
+      visible_to_public: false,
+      visible_to_agent: true,
+    })
+    setFile(null)
+    setShowForm(false)
+  }
+
   const getPropertyName = (doc: PropertyDoc) => {
     const prop = properties.find(p => p.id === doc.property_id && p.type === doc.property_type)
     return prop?.name || '(物件情報なし)'
@@ -106,11 +182,145 @@ export default function PropertyDocumentsPage() {
         物件ごとの資料(概要書、謄本、案内方法など)を管理します。
       </p>
 
-      <button
-        style={{ padding: '10px 20px', background: '#1a3a5c', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, marginBottom: 20 }}
-      >
-        ＋ 書類を追加
-      </button>
+      {!showForm && (
+        <button
+          onClick={() => setShowForm(true)}
+          style={{ padding: '10px 20px', background: '#1a3a5c', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, marginBottom: 20 }}
+        >
+          ＋ 書類を追加
+        </button>
+      )}
+
+      {showForm && (
+        <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16, color: '#1a3a5c' }}>＋ 書類を追加</h3>
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+              対象物件 <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <select
+              value={form.property_type + ':' + form.property_id}
+              onChange={e => {
+                const parts = e.target.value.split(':')
+                setForm(f => ({ ...f, property_type: parts[0] as PropertyType, property_id: Number(parts[1]) }))
+              }}
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' }}
+            >
+              <option value="sale:0">▼ 物件を選択してください</option>
+              {properties.map(p => (
+                <option key={p.type + ':' + p.id} value={p.type + ':' + p.id}>
+                  【{TYPE_LABEL[p.type]}】{p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+              書類タイトル <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              value={form.title}
+              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="例:物件概要書、キーボックス情報"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                書類種別 <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <select
+                value={form.document_type}
+                onChange={e => handleDocTypeChange(e.target.value as DocumentType)}
+                style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' }}
+              >
+                <option value="material">📄 物件資料</option>
+                <option value="guide">🔑 案内方法</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                PDFファイル <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={e => setFile(e.target.files?.[0] || null)}
+                style={{ width: '100%', padding: 6, border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>説明（任意）</label>
+            <input
+              type="text"
+              value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              placeholder="例:鍵の場所、暗証番号など"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ background: '#FAEEDA', borderRadius: 8, padding: 14, marginBottom: 16 }}>
+            <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600, color: '#633806' }}>🛡️ 公開範囲</p>
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={form.visible_to_agent}
+                onChange={e => setForm(f => ({ ...f, visible_to_agent: e.target.checked }))}
+                style={{ marginTop: 3 }}
+              />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>仲介業者にメール送信OK</div>
+                <div style={{ fontSize: 11, color: '#6b7280' }}>業者ポータルからの資料請求で即座に自動送信</div>
+              </div>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: form.document_type === 'guide' ? 'not-allowed' : 'pointer', opacity: form.document_type === 'guide' ? 0.5 : 1 }}>
+              <input
+                type="checkbox"
+                checked={form.visible_to_public}
+                onChange={e => setForm(f => ({ ...f, visible_to_public: e.target.checked }))}
+                disabled={form.document_type === 'guide'}
+                style={{ marginTop: 3 }}
+              />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>一般ユーザーにもメール送信OK</div>
+                <div style={{ fontSize: 11, color: '#6b7280' }}>GINTETSUサイトの資料請求で送信。スタッフ承認フロー経由</div>
+              </div>
+            </label>
+
+            {form.document_type === 'guide' && (
+              <p style={{ margin: '10px 0 0', fontSize: 11, color: '#633806' }}>
+                💡「案内方法」は一般ユーザーに送信不可（自動でOFF）
+              </p>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              style={{ padding: '10px 20px', background: saving ? '#9ca3af' : '#1a3a5c', color: 'white', border: 'none', borderRadius: 8, cursor: saving ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600 }}
+            >
+              {saving ? '保存中...' : '✅ 登録する'}
+            </button>
+            <button
+              onClick={resetForm}
+              style={{ padding: '10px 20px', background: 'white', color: '#6b7280', border: '1px solid #d1d5db', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         {(['all', 'sale', 'rental', 'investment'] as const).map(tab => (
