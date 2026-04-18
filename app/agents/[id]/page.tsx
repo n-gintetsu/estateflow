@@ -124,11 +124,11 @@ export default function AgentDetailPage() {
       </div>
 
       {/* 名刺画像 */}
-      {agent.business_card_url && (
+      {agent.card_url && (
         <div style={card}>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, borderBottom: '1px solid #e5e7eb', paddingBottom: 8 }}>🪪 名刺画像</h2>
-          <img src={agent.business_card_url} alt="名刺" style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, border: '1px solid #e5e7eb', objectFit: 'contain' }} />
-          <p style={{ marginTop: 8 }}><a href={agent.business_card_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', fontSize: 13 }}>画像を別タブで開く</a></p>
+          <img src={agent.card_url} alt="名刺" style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, border: '1px solid #e5e7eb', objectFit: 'contain' }} />
+          <p style={{ marginTop: 8 }}><a href={agent.card_url} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', fontSize: 13 }}>画像を別タブで開く</a></p>
         </div>
       )}
 
