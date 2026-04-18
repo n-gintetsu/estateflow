@@ -113,7 +113,11 @@ export default function PropertyDocumentsPage() {
     }
     setSaving(true)
     try {
-      const fileName = Date.now() + '_' + file.name
+      // 拡張子を取得（例: .pdf, .zip, .docx）
+      const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')) : ''
+      // ファイル名は安全な英数字のみ（タイムスタンプ+ランダム）
+      const safeName = Date.now() + '_' + Math.random().toString(36).slice(2, 10) + ext
+      const fileName = safeName
       const { error: upErr } = await supabase.storage
         .from('property-images')
         .upload('documents/' + fileName, file, { contentType: file.type })
