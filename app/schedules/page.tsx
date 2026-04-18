@@ -218,8 +218,8 @@ export default function SchedulePage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
             {filtered.map(item => {
               const s = STATUS_MAP[item.status] || STATUS_MAP.pending
-              const date = new Date(item.scheduled_at)
-              const isPast = date < new Date()
+              const date = item.scheduled_at ? new Date(item.scheduled_at) : null
+              const isPast = date ? date < new Date() : false
               return (
                 <div key={item.id} style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `1px solid ${isPast && item.status !== 'cancelled' ? '#e5e7eb' : 'transparent'}`, opacity: item.status === 'cancelled' ? 0.7 : 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -240,7 +240,7 @@ export default function SchedulePage() {
                     <div style={{ fontSize: 13, color: '#374151', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span>📅</span>
                       <span style={{ fontWeight: 600, color: isPast && item.status !== 'cancelled' ? '#94a3b8' : '#1a3a5c' }}>
-                        {date.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' })}〜
+                        {date ? `${date.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' })}〜` : '日時未定（資料請求など)'}
                       </span>
                     </div>
                     {item.assigned_staff && (
