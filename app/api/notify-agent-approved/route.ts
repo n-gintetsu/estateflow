@@ -14,21 +14,22 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from: 'noreply@gintetsu-fudosan.co.jp',
       to: email,
-      subject: '[GINTETSU] agent account approved',
+      subject: 'GINTETSU不動産 仲介業者アカウント承認のお知らせ',
       html: '<div style="font-family:sans-serif;max-width:600px;margin:0 auto">'
         + '<div style="background:#1a3a5c;padding:24px;text-align:center">'
-        + '<h1 style="color:white;font-size:20px;margin:0">GINTETSU</h1>'
+        + '<h1 style="color:white;font-size:20px;margin:0">GINTETSU不動産</h1>'
         + '</div>'
         + '<div style="padding:32px;background:white">'
-        + '<p>' + contact_name + ' </p>'
-        + '<p>GINTETSU agent account has been approved.</p>'
+        + '<p>' + contact_name + ' 様</p>'
+        + '<p>' + company_name + ' 様のアカウントが承認されました。</p>'
+        + '<p>以下の情報でログインしてください。</p>'
         + '<div style="background:#f8f6f2;border-left:4px solid #c9a84c;padding:16px;margin:24px 0;border-radius:4px">'
-        + '<p style="margin:4px 0">ID: <strong>' + agent_code + '</strong></p>'
-        + '<p style="margin:4px 0">Password: <strong>Gintetsu2024!</strong></p>'
+        + '<p style="margin:4px 0">業者ID: <strong>' + agent_code + '</strong></p>'
+        + '<p style="margin:4px 0">パスワード: <strong>Gintetsu2024!</strong></p>'
         + '</div>'
-        + '<p>Login: <a href="https://gintetsu-fudosan.co.jp/agent">https://gintetsu-fudosan.co.jp/agent</a></p>'
-        + '<p style="color:#666;font-size:13px">Please change your password after login.</p>'
-        + '<p style="color:#1a3a5c;font-weight:bold">GINTETSU<br>TEL: 048-606-4317</p>'
+        + '<p>ログインURL: <a href="https://gintetsu-fudosan.co.jp/agent">https://gintetsu-fudosan.co.jp/agent</a></p>'
+        + '<p style="color:#666;font-size:13px">ログイン後、パスワードの変更をお願いいたします。</p>'
+        + '<p style="color:#1a3a5c;font-weight:bold">GINTETSU不動産株式会社<br>TEL: 048-606-4317</p>'
         + '</div></div>',
     })
 
