@@ -245,11 +245,11 @@ export default function PropertyDocumentsPage() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
-                PDFファイル <span style={{ color: '#ef4444' }}>*</span>
+                ファイル（PDF/Word/Excel/ZIP）<span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
                 type="file"
-                accept="application/pdf"
+                accept=".pdf,.zip,.doc,.docx,.xls,.xlsx,application/pdf,application/zip,application/x-zip-compressed,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 onChange={e => setFile(e.target.files?.[0] || null)}
                 style={{ width: '100%', padding: 6, border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }}
               />
@@ -383,7 +383,7 @@ export default function PropertyDocumentsPage() {
                   rel="noopener noreferrer"
                   style={{ padding: '6px 12px', background: 'white', color: '#1a3a5c', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 12, textDecoration: 'none' }}
                 >
-                  📥 PDF
+                  📥 ダウンロード
                 </a>
               </div>
             )
