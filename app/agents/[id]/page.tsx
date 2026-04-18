@@ -43,6 +43,19 @@ export default function AgentDetailPage() {
     setAgent((prev: any) => ({ ...prev, status }))
     setMsg('ステータスを更新しました')
     setTimeout(() => setMsg(''), 3000)
+
+    if (status === 'active' && agent?.email) {
+      await fetch('/api/notify-agent-approved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: agent.email,
+          company_name: agent.company_name,
+          contact_name: agent.contact_name,
+          agent_code: agent.agent_code,
+        }),
+      })
+    }
   }
 
   const handleMemoSave = async () => {
