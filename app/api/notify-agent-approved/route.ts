@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
         + '<p>以下の情報でログインしてください。</p>'
         + '<div style="background:#f8f6f2;border-left:4px solid #c9a84c;padding:16px;margin:24px 0;border-radius:4px">'
         + '<p style="margin:4px 0">業者ID: <strong>' + agent_code + '</strong></p>'
-        + '<p style="margin:4px 0">パスワード: <strong>Gintetsu2024!</strong></p>'
+        + '<p style="margin:4px 0">パスワード: ご登録時にご自身で設定されたパスワード</p>'
         + '</div>'
         + '<p>ログインURL: <a href="https://gintetsu-fudosan.co.jp/agent">https://gintetsu-fudosan.co.jp/agent</a></p>'
-        + '<p style="color:#666;font-size:13px">ログイン後、パスワードの変更をお願いいたします。</p>'
+        + '<p style="color:#666;font-size:13px">パスワードをお忘れの場合は、お手数ですが弊社までご連絡ください。</p>'
         + '<p style="color:#1a3a5c;font-weight:bold">GINTETSU不動産株式会社<br>TEL: 048-606-4317</p>'
         + '</div></div>',
     })
