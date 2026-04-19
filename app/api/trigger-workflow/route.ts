@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -11,13 +21,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (!trigger_type || !to_email) {
-      return NextResponse.json({ error: 'trigger_type and to_email are required' }, { status: 400 })
+      return NextResponse.json({ error: 'trigger_type and to_email are required' }, { status: 400, headers: CORS_HEADERS })
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'supabase env not set' }, { status: 500 })
+      return NextResponse.json({ error: 'supabase env not set' }, { status: 500, headers: CORS_HEADERS })
     }
     const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -30,18 +40,18 @@ export async function POST(request: NextRequest) {
 
     if (wfErr) {
       console.error('workflow fetch error:', wfErr)
-      return NextResponse.json({ error: 'failed to fetch workflows' }, { status: 500 })
+      return NextResponse.json({ error: 'failed to fetch workflows' }, { status: 500, headers: CORS_HEADERS })
     }
 
     if (!workflows || workflows.length === 0) {
       // ワークフローが登録されていない場合はスキップ（エラーにはしない）
-      return NextResponse.json({ success: true, skipped: true, reason: 'no active workflow for this trigger' })
+      return NextResponse.json({ success: true, skipped: true, reason: 'no active workflow for this trigger' }, { headers: CORS_HEADERS })
     }
 
     // 2. Resend準備
     const apiKey = process.env.RESEND_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'no api key' }, { status: 500 })
+      return NextResponse.json({ error: 'no api key' }, { status: 500, headers: CORS_HEADERS })
     }
     const { Resend } = await import('resend')
     const resend = new Resend(apiKey)
@@ -102,9 +112,9 @@ export async function POST(request: NextRequest) {
       success: true,
       triggered_count: workflows.length,
       results,
-    })
+    }, { headers: CORS_HEADERS })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+    return NextResponse.json({ error: String(error) }, { status: 500, headers: CORS_HEADERS })
   }
 }
