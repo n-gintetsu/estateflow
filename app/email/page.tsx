@@ -12,6 +12,7 @@ const TRIGGER_LABELS: any = {
   before_visit: '内見24時間前',
   status_change: '申込ステータス変更時',
   manual: '手動送信',
+  ad_inquiry_received: '広告掲載問い合わせ受信時',
 }
 
 const TRIGGER_ICONS: any = {
@@ -19,6 +20,7 @@ const TRIGGER_ICONS: any = {
   before_visit: '📅',
   status_change: '🔄',
   manual: '✉️',
+  ad_inquiry_received: '📢',
 }
 
 export default function EmailPage() {
@@ -192,6 +194,7 @@ export default function EmailPage() {
                       <option value="before_visit">内見24時間前</option>
                       <option value="status_change">申込ステータス変更時</option>
                       <option value="manual">手動送信</option>
+                      <option value="ad_inquiry_received">広告掲載問い合わせ受信時</option>
                     </select>
                   </div>
                   <div>
