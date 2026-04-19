@@ -13,6 +13,11 @@ const TRIGGER_LABELS: any = {
   status_change: '申込ステータス変更時',
   manual: '手動送信',
   ad_inquiry_received: '広告掲載問い合わせ受信時',
+  agent_ad_placement: '【業者】広告掲載依頼受信時',
+  agent_viewing: '【業者】内見依頼受信時',
+  agent_application: '【業者】購入/入居申込受信時',
+  agent_doc_request: '【業者】物件資料請求受信時',
+  agent_other: '【業者】その他お問い合わせ受信時',
 }
 
 const TRIGGER_ICONS: any = {
@@ -21,6 +26,11 @@ const TRIGGER_ICONS: any = {
   status_change: '🔄',
   manual: '✉️',
   ad_inquiry_received: '📢',
+  agent_ad_placement: '📣',
+  agent_viewing: '🏠',
+  agent_application: '📝',
+  agent_doc_request: '📄',
+  agent_other: '💬',
 }
 
 export default function EmailPage() {
@@ -195,6 +205,11 @@ export default function EmailPage() {
                       <option value="status_change">申込ステータス変更時</option>
                       <option value="manual">手動送信</option>
                       <option value="ad_inquiry_received">広告掲載問い合わせ受信時</option>
+                      <option value="agent_ad_placement">【業者】広告掲載依頼受信時</option>
+                      <option value="agent_viewing">【業者】内見依頼受信時</option>
+                      <option value="agent_application">【業者】購入/入居申込受信時</option>
+                      <option value="agent_doc_request">【業者】物件資料請求受信時</option>
+                      <option value="agent_other">【業者】その他お問い合わせ受信時</option>
                     </select>
                   </div>
                   <div>
