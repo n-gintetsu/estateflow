@@ -94,6 +94,38 @@ export default function SchedulePage() {
     await fetchItems()
   }
 
+  const handleSendDocuments = async (item: any) => {
+    if (!item.customer_email) {
+      alert('このスケジュールにはメールアドレスが登録されていません')
+      return
+    }
+    if (!item.property_id || !item.property_type) {
+      alert('このスケジュールには物件情報が紐付いていません（古いデータの可能性があります）')
+      return
+    }
+    if (item.documents_sent_at) {
+      if (!confirm('既に資料送信済みです。再送信しますか？')) return
+    } else {
+      if (!confirm(`${item.customer_name} 様（${item.customer_email}）に資料をメール送信します。よろしいですか？`)) return
+    }
+    try {
+      const res = await fetch('/api/send-property-documents-public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ schedule_id: item.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert('送信失敗: ' + (data.error || 'unknown'))
+        return
+      }
+      alert(`✅ 送信完了！書類${data.documents_count}点を送信しました`)
+      await fetchItems()
+    } catch (e: any) {
+      alert('エラー: ' + (e.message || e))
+    }
+  }
+
   const filtered = filter === 'all' ? items : items.filter(i => i.status === filter)
 
   const counts = {
@@ -276,6 +308,16 @@ export default function SchedulePage() {
                       </button>
                     )}
                   </div>
+
+                  {/* 📤 資料送信ボタン */}
+                  {item.property_id && item.property_type && item.customer_email && (
+                    <div style={{ marginBottom: 10 }}>
+                      <button onClick={() => handleSendDocuments(item)}
+                        style={{ width: '100%', background: item.documents_sent_at ? '#f0fdf4' : '#1a3a5c', color: item.documents_sent_at ? '#16a34a' : 'white', border: item.documents_sent_at ? '1px solid #bbf7d0' : 'none', padding: '8px', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+                        {item.documents_sent_at ? '✅ 資料送信済み（再送信）' : '📤 資料をメール送信'}
+                      </button>
+                    </div>
+                  )}
 
                   <div style={{ display: 'flex', gap: 6, borderTop: '1px solid #f1f5f9', paddingTop: 10 }}>
                     <button onClick={() => handleEdit(item)}
