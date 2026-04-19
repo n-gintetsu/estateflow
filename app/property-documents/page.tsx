@@ -65,6 +65,7 @@ export default function PropertyDocumentsPage() {
   })
   const [file, setFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   useEffect(() => {
     loadData()
@@ -107,37 +108,58 @@ export default function PropertyDocumentsPage() {
       alert('物件とタイトルは必須です')
       return
     }
-    if (!file) {
-      alert('PDFファイルを選択してください')
+    if (!editingId && !file) {
+      alert('ファイルを選択してください')
       return
     }
     setSaving(true)
     try {
-      // 拡張子を取得（例: .pdf, .zip, .docx）
-      const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')) : ''
-      // ファイル名は安全な英数字のみ（タイムスタンプ+ランダム）
-      const safeName = Date.now() + '_' + Math.random().toString(36).slice(2, 10) + ext
-      const fileName = safeName
-      const { error: upErr } = await supabase.storage
-        .from('property-images')
-        .upload('documents/' + fileName, file, { contentType: file.type })
-      if (upErr) throw upErr
-      const { data: urlData } = supabase.storage
-        .from('property-images')
-        .getPublicUrl('documents/' + fileName)
-      const file_url = urlData.publicUrl
+      let file_url = ''
 
-      const { error } = await supabase.from('property_documents').insert([{
-        property_type: form.property_type,
-        property_id: form.property_id,
-        title: form.title,
-        description: form.description || null,
-        file_url: file_url,
-        document_type: form.document_type,
-        visible_to_public: form.visible_to_public,
-        visible_to_agent: form.visible_to_agent,
-      }])
-      if (error) throw error
+      // ファイルが選ばれている場合のみアップロード
+      if (file) {
+        const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')) : ''
+        const safeName = Date.now() + '_' + Math.random().toString(36).slice(2, 10) + ext
+        const fileName = safeName
+        const { error: upErr } = await supabase.storage
+          .from('property-images')
+          .upload('documents/' + fileName, file, { contentType: file.type })
+        if (upErr) throw upErr
+        const { data: urlData } = supabase.storage
+          .from('property-images')
+          .getPublicUrl('documents/' + fileName)
+        file_url = urlData.publicUrl
+      }
+
+      if (editingId) {
+        // 更新モード
+        const updateData: any = {
+          property_type: form.property_type,
+          property_id: form.property_id,
+          title: form.title,
+          description: form.description || null,
+          document_type: form.document_type,
+          visible_to_public: form.visible_to_public,
+          visible_to_agent: form.visible_to_agent,
+          updated_at: new Date().toISOString(),
+        }
+        if (file_url) updateData.file_url = file_url
+        const { error } = await supabase.from('property_documents').update(updateData).eq('id', editingId)
+        if (error) throw error
+      } else {
+        // 新規作成
+        const { error } = await supabase.from('property_documents').insert([{
+          property_type: form.property_type,
+          property_id: form.property_id,
+          title: form.title,
+          description: form.description || null,
+          file_url: file_url,
+          document_type: form.document_type,
+          visible_to_public: form.visible_to_public,
+          visible_to_agent: form.visible_to_agent,
+        }])
+        if (error) throw error
+      }
 
       resetForm()
       loadData()
@@ -146,6 +168,32 @@ export default function PropertyDocumentsPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleEdit = (doc: PropertyDoc) => {
+    setEditingId(doc.id)
+    setForm({
+      property_type: doc.property_type,
+      property_id: doc.property_id,
+      title: doc.title,
+      description: doc.description || '',
+      document_type: doc.document_type,
+      visible_to_public: doc.visible_to_public,
+      visible_to_agent: doc.visible_to_agent,
+    })
+    setFile(null)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('本当に削除しますか？')) return
+    const { error } = await supabase.from('property_documents').delete().eq('id', id)
+    if (error) {
+      alert('削除エラー: ' + error.message)
+      return
+    }
+    loadData()
   }
 
   const resetForm = () => {
@@ -159,6 +207,7 @@ export default function PropertyDocumentsPage() {
       visible_to_agent: true,
     })
     setFile(null)
+    setEditingId(null)
     setShowForm(false)
   }
 
@@ -197,7 +246,7 @@ export default function PropertyDocumentsPage() {
 
       {showForm && (
         <div style={{ background: 'white', borderRadius: 12, padding: 24, marginBottom: 24, border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 16, color: '#1a3a5c' }}>＋ 書類を追加</h3>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16, color: '#1a3a5c' }}>{editingId ? '✏️ 書類を編集' : '＋ 書類を追加'}</h3>
 
           <div style={{ marginBottom: 14 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
@@ -314,7 +363,7 @@ export default function PropertyDocumentsPage() {
               disabled={saving}
               style={{ padding: '10px 20px', background: saving ? '#9ca3af' : '#1a3a5c', color: 'white', border: 'none', borderRadius: 8, cursor: saving ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: 600 }}
             >
-              {saving ? '保存中...' : '✅ 登録する'}
+              {saving ? '保存中...' : editingId ? '✅ 更新する' : '✅ 登録する'}
             </button>
             <button
               onClick={resetForm}
@@ -389,6 +438,12 @@ export default function PropertyDocumentsPage() {
                 >
                   📥 ダウンロード
                 </a>
+                <button onClick={() => handleEdit(doc)} style={{ padding: '6px 12px', background: 'white', border: '1px solid #d1d5db', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                  ✏️編集
+                </button>
+                <button onClick={() => handleDelete(doc.id)} style={{ padding: '6px 12px', background: 'white', color: '#ef4444', border: '1px solid #fca5a5', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                  🗑削除
+                </button>
               </div>
             )
           })}
