@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
         + '<div style="background:#1a3a5c;padding:24px;text-align:center">'
         + '<h1 style="color:white;font-size:20px;margin:0">GINTETSU不動産</h1>'
         + '</div>'
-        + '<div style="padding:32px;background:white;white-space:pre-wrap;line-height:1.8">'
-        + bodyText
+        + '<div style="padding:32px;background:white;line-height:1.8">' 
+        + bodyText.replace(/\n/g, '<br>')
         + '</div>'
         + '<div style="padding:16px 32px;background:#f8f6f2;border-top:1px solid #e5e7eb">'
         + '<p style="color:#666;font-size:12px;margin:4px 0">※本メールは送信専用のため、直接返信いただいてもお答えできません。</p>'
