@@ -165,6 +165,7 @@ export default function Properties() {
       description: form.description || null,
       status: form.status,
       published: form.published,
+      visibility: form.visibility,
       images: imageUrls.length > 0 ? imageUrls : (uploadPreviews.length > 0 ? uploadPreviews : null),
     floor_plan_url: floorPlanUrl,
     document_urls: documentUrl.length > 0 ? documentUrl : (editItem?.document_urls || null),
