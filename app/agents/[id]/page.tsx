@@ -95,9 +95,10 @@ export default function AgentDetailPage() {
         <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, borderBottom: '1px solid #e5e7eb', paddingBottom: 8 }}>🏢 会社情報</h2>
         <div style={row}>
           <div><p style={label}>業者コード</p><p style={value}>{agent.agent_code || '—'}</p></div>
-          <div><p style={label}>法人番号</p><p style={value}>{agent.corporate_number || '—'}</p></div>
           <div><p style={label}>会社名</p><p style={value}>{agent.company_name || '—'}</p></div>
           <div><p style={label}>住所</p><p style={value}>{agent.address || '—'}</p></div>
+              <div><p style={label}>番地</p><p style={value}>{agent.street_address || '-'}</p></div>
+              <div><p style={label}>建物名</p><p style={value}>{agent.building_name || '-'}</p></div>
         </div>
       </div>
 
