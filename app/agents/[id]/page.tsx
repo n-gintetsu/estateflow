@@ -39,7 +39,8 @@ export default function AgentDetailPage() {
   }
 
   const handleStatusChange = async (status: string) => {
-    await supabase.from('agent_users').update({ status }).eq('id', id)
+    const is_active = status === 'active'
+  await supabase.from('agent_users').update({ status, is_active }).eq('id', id)
     setAgent((prev: any) => ({ ...prev, status }))
     setMsg('ステータスを更新しました')
     setTimeout(() => setMsg(''), 3000)
