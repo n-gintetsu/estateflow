@@ -488,6 +488,21 @@ export default function Properties() {
                     <input name="staff_phone" value={form.staff_phone || ''} onChange={handleChange}
                       placeholder="例：048-606-4317" style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' as const }} />
                   </div>
+                <div>
+                  <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>担当スタッフメール</label>
+                  <input name="staff_email" value={form.staff_email || ''} onChange={handleChange}
+                    placeholder="例：staff@gintetsu-fudosan.co.jp" style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' as const }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>キーボックス番号（現地対応時）</label>
+                  <input name="keybox_code" value={form.keybox_code || ''} onChange={handleChange}
+                    placeholder="例：1234" style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' as const }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>キーボックス設置場所（現地対応時）</label>
+                  <input name="keybox_location" value={form.keybox_location || ''} onChange={handleChange}
+                    placeholder="例：玄関ドア横" style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' as const }} />
+                </div>
                 </div>
               )}
         </div>
