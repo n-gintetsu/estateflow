@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
         </div>
       </div>`,
     })
-    const DUMMY_PLACEHOLDER
 
     return NextResponse.json({ success: true })
   } catch (error) {
