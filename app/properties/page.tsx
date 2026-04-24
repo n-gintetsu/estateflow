@@ -166,6 +166,9 @@ export default function Properties() {
       status: form.status,
       published: form.published,
       visibility: form.visibility,
+      viewing_method: form.viewing_method || null,
+      staff_name: form.staff_name || null,
+      staff_phone: form.staff_phone || null,
       images: imageUrls.length > 0 ? imageUrls : (uploadPreviews.length > 0 ? uploadPreviews : null),
     floor_plan_url: floorPlanUrl,
     document_urls: documentUrl.length > 0 ? documentUrl : (editItem?.document_urls || null),
@@ -462,6 +465,30 @@ export default function Properties() {
             <option value="agent">🤝 仲介業者のみ（業者ダッシュボードのみ）</option>
             <option value="both">📢 両方に掲載（サイト＋業者ダッシュボード）</option>
           </select>
+              {(form.visibility === 'agent' || form.visibility === 'both') && (
+                <div style={{ marginTop: 12, padding: 12, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
+                  <p style={{ fontSize: 12, color: '#0369a1', fontWeight: 700, margin: '0 0 8px' }}>🏠 仲介業者向け設定</p>
+                  <div style={{ marginBottom: 8 }}>
+                    <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>内見方法</label>
+                    <select name="viewing_method" value={form.viewing_method || '対面'} onChange={handleChange}
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14 }}>
+                      <option value="対面">対面</option>
+                      <option value="オンライン">オンライン</option>
+                      <option value="対面・オンライン両方可">対面・オンライン両方可</option>
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>担当スタッフ名</label>
+                    <input name="staff_name" value={form.staff_name || ''} onChange={handleChange}
+                      placeholder="例：小川 宜猛" style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: '#374151', display: 'block', marginBottom: 4 }}>担当スタッフ電話番号</label>
+                    <input name="staff_phone" value={form.staff_phone || ''} onChange={handleChange}
+                      placeholder="例：048-606-4317" style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' as const }} />
+                  </div>
+                </div>
+              )}
         </div>
             </div>
 
