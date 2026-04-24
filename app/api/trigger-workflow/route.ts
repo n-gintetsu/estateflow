@@ -69,7 +69,8 @@ export async function POST(request: NextRequest) {
       variables?: Record<string, string>
     }
 
-    if (!trigger_type || !to_email) {
+    console.log('[trigger-workflow] received variables:', JSON.stringify(variables))
+  if (!trigger_type || !to_email) {
       return NextResponse.json({ error: 'trigger_type and to_email are required' }, { status: 400, headers: CORS_HEADERS })
     }
 
