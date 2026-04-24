@@ -414,8 +414,8 @@ export default function RentalProperties() {
                     <select name="viewing_method" value={form.viewing_method || '対面'} onChange={handleChange}
                       style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14 }}>
                       <option value="対面">対面</option>
-                      <option value="オンライン">オンライン</option>
-                      <option value="対面・オンライン両方可">対面・オンライン両方可</option>
+                      <option value="現地対応">現地対応</option>
+                      <option value="鍵取り">鍵取り</option>
                     </select>
                   </div>
                   <div style={{ marginBottom: 8 }}>
