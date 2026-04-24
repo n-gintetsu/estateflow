@@ -139,6 +139,9 @@ export default function RentalProperties() {
       viewing_method: form.viewing_method || null,
       staff_name: form.staff_name || null,
       staff_phone: form.staff_phone || null,
+    staff_email: form.staff_email || null,
+    keybox_code: form.keybox_code || null,
+    keybox_location: form.keybox_location || null,
     }
     let error
     if (editItem) {
