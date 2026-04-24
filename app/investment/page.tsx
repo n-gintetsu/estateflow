@@ -22,7 +22,8 @@ const emptyForm = {
   floor_plan_url: '',
   status: 'available', published: true,
   visibility: 'public',
-  viewing_method: '', staff_name: '', staff_phone: ''
+  viewing_method: '', staff_name: '', staff_phone: '',
+  staff_email: '', keybox_code: '', keybox_location: ''
 }
 
 export default function InvestmentProperties() {
