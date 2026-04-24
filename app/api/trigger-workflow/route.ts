@@ -171,21 +171,6 @@ export async function POST(request: NextRequest) {
           results.push({ workflow_id: wf.id, workflow_name: wf.name, success: false, error: String(e) })
         }
       }
-    } else {
-      // スタッフ用ワークフローがない場合はinfo@に基本通知
-      try {
-        const infoSubject = `【業者問い合わせ】${variables?.inquiry_type || ''} - ${variables?.property_name || ''}`
-        const infoBody = `新しい問い合わせが届きました。\n\n■ 種別：${variables?.inquiry_type || ''}\n■ 物件：${variables?.property_name || ''}\n■ 会社名：${variables?.company_name || ''}\n■ 担当者：${variables?.contact_name || ''}\n■ 電話：${variables?.phone || ''}\n■ メール：${to_email}\n■ 希望日時：${variables?.preferred_date || ''} ${variables?.preferred_time || ''}\n■ 内見方法：${variables?.viewing_method || ''}\n■ メッセージ：${variables?.message || ''}`
-        await resend.emails.send({
-          from: 'noreply@gintetsu-fudosan.co.jp',
-          to: staffEmail,
-          subject: infoSubject,
-          html: buildHtml(infoBody),
-        })
-        results.push({ type: 'staff_fallback', success: true })
-      } catch (e: any) {
-        results.push({ type: 'staff_fallback', success: false, error: String(e) })
-      }
     }
 
     return NextResponse.json({
