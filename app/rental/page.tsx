@@ -17,7 +17,8 @@ const emptyForm = {
   equipment: '', features: '', description: '',
   floor_plan_url: '',
   status: 'available', published: true,
-  visibility: 'both'
+  visibility: 'both',
+  viewing_method: '', staff_name: '', staff_phone: ''
 }
 
 export default function RentalProperties() {
