@@ -21,7 +21,8 @@ const emptyForm = {
   features: '', description: '',
   floor_plan_url: '',
   status: 'available', published: true,
-  visibility: 'public'
+  visibility: 'public',
+  viewing_method: '', staff_name: '', staff_phone: ''
 }
 
 export default function InvestmentProperties() {
