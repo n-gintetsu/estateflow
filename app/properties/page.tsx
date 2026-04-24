@@ -24,7 +24,8 @@ const emptyForm = {
   status: 'available',
   published: true,
   floor_plan_url: '',
-  visibility: 'public'
+  visibility: 'public',
+  viewing_method: '', staff_name: '', staff_phone: ''
 }
 
 export default function Properties() {
