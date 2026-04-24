@@ -111,7 +111,7 @@ export default function AgentDetailPage() {
           <div><p style={label}>部署</p><p style={value}>{agent.department || '—'}</p></div>
           <div><p style={label}>メール</p><p style={value}>{agent.email || '—'}</p></div>
           <div><p style={label}>電話番号</p><p style={value}>{agent.phone || '—'}</p></div>
-          <div><p style={label}>携帯番号</p><p style={value}>{agent.mobile_phone || '—'}</p></div>
+          <div><p style={label}>携帯番号</p><p style={value}>{agent.mobile || '—'}</p></div>
         </div>
       </div>
 
