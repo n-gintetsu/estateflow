@@ -154,7 +154,7 @@ export default function EmailPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24 }}>
           {/* 左：ワークフロー一覧 */}
-          <div>
+            <div style={{ position: 'relative', zIndex: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <h2 style={{ fontSize: 15, fontWeight: 'bold', margin: 0 }}>ワークフロー一覧</h2>
               <button onClick={() => { setShowNew(!showNew); setMsg('') }}
