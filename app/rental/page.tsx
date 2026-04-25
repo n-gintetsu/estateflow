@@ -154,21 +154,18 @@ export default function RentalProperties() {
     if (error) { setMsg(`❌ エラー: ${error.message}`) }
     else {
       // property_documentsテーブルにも保存
-      if (documentUrls.length > 0) {
-        const propertyId = editItem?.id || (await supabase.from('rental_properties').select('id').eq('name', form.name).order('created_at', { ascending: false }).limit(1).single()).data?.id
-        if (propertyId) {
-          for (const url of documentUrls) {
-            await supabase.from('property_documents').insert({
-              property_id: String(propertyId),
-              property_type: 'rental',
-              title: form.name + ' 資料',
-              file_url: url,
-              document_type: 'material',
-              visible_to_public: true,
-              visible_to_agent: true,
-              is_active: true,
-            })
-          }
+      if (documentUrls.length > 0 && editItem?.id) {
+        for (const url of documentUrls) {
+          await supabase.from('property_documents').insert({
+            property_id: String(editItem.id),
+            property_type: 'rental',
+            title: form.name + ' 資料',
+            file_url: url,
+            document_type: 'material',
+            visible_to_public: true,
+            visible_to_agent: true,
+            is_active: true,
+          })
         }
       }
       setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems()
