@@ -151,13 +151,22 @@ export default function RentalProperties() {
       const { error: e } = await supabase.from('rental_properties').insert([payload])
       error = e
     }
-    if (error) { setMsg(`❌ エラー: ${error.message}`) }
-    else {
-      // property_documentsテーブルにも保存
-      if (documentUrls.length > 0 && editItem?.id) {
+  if (error) { setMsg(`❌ エラー： ${error.message}`) }
+  else {
+    // property_documentsテーブルにも保存（新規・編集両対応、重複防止）
+    if (documentUrls.length > 0) {
+      let propertyId: string | null = null
+      if (editItem?.id) {
+        propertyId = String(editItem.id)
+      } else {
+        const { data: latest } = await supabase.from('rental_properties').select('id').order('id', { ascending: false }).limit(1).single()
+        if (latest) propertyId = String(latest.id)
+      }
+      if (propertyId) {
+        await supabase.from('property_documents').delete().eq('property_id', propertyId).eq('property_type', 'rental')
         for (const url of documentUrls) {
           await supabase.from('property_documents').insert({
-            property_id: String(editItem.id),
+            property_id: propertyId,
             property_type: 'rental',
             title: form.name + ' 資料',
             file_url: url,
@@ -168,8 +177,11 @@ export default function RentalProperties() {
           })
         }
       }
-      setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems()
     }
+    setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems()
+  }
+  setSaving(false)
+}
     setSaving(false)
   }
 
