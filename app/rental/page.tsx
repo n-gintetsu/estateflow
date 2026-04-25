@@ -180,8 +180,6 @@ export default function RentalProperties() {
     }
     setMsg('✅ 登録しました！'); setForm({ ...emptyForm }); setUploadFiles([]); setUploadPreviews([]); setPdfFiles([]); setShowForm(false); fetchItems()
   }
-  setSaving(false)
-}
     setSaving(false)
   }
 
