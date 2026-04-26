@@ -178,7 +178,7 @@ export default function Properties() {
     staff_email: form.staff_email || null,
     keybox_code: form.keybox_code || null,
     keybox_location: form.keybox_location || null,
-      images: imageUrls.length > 0 ? imageUrls : (uploadPreviews.length > 0 ? uploadPreviews : null),
+      images: [...uploadPreviews.filter(p => p.startsWith('http')), ...imageUrls].length > 0 ? [...uploadPreviews.filter(p => p.startsWith('http')), ...imageUrls] : null,
     floor_plan_url: floorPlanUrl,
     document_urls: documentUrl.length > 0 ? documentUrl : (editItem?.document_urls || null),
     }
