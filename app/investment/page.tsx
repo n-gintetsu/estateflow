@@ -151,7 +151,7 @@ export default function InvestmentProperties() {
       features: form.features ? form.features.split('、').map((s: string) => s.trim()).filter(Boolean) : null,
       description: form.description || null,
       status: form.status, published: form.published,
-      images: imageUrls.length > 0 ? imageUrls : (editItem?.images || null),
+      images: [...(editItem?.images || []).filter((p: string) => p.startsWith('http')), ...imageUrls].length > 0 ? [...(editItem?.images || []).filter((p: string) => p.startsWith('http')), ...imageUrls] : null,
       floor_plan_url: form.floor_plan_url || null,
       document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
       viewing_method: form.viewing_method || null,
