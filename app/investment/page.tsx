@@ -23,7 +23,8 @@ const emptyForm = {
   status: 'available', published: true,
   visibility: 'public',
   viewing_method: '', staff_name: '', staff_phone: '',
-  staff_email: '', keybox_code: '', keybox_location: ''
+  staff_email: '', keybox_code: '', keybox_location: '',
+  doc_auto_send_public: false, doc_auto_send_agent: false
 }
 
 export default function InvestmentProperties() {
@@ -482,6 +483,19 @@ export default function InvestmentProperties() {
             <option value="agent">🤝 仲介業者のみ（業者ダッシュボードのみ）</option>
             <option value="both">📢 両方に掲載（サイト＋業者ダッシュボード）</option>
           </select>
+                <div style={{ marginTop: 12 }}>
+                  <p style={{ fontSize: 12, color: '#0369a1', fontWeight: 700, margin: '0 0 6px' }}>📦 資料自動送信設定</p>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, marginBottom: 4 }}>
+                    <input type="checkbox" checked={form.doc_auto_send_public || false}
+                      onChange={e => setForm(f => ({ ...f, doc_auto_send_public: e.target.checked }))} />
+                    🌐 一般ユーザーへ自動送信（チェックなし＝スタッフ対応）
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                    <input type="checkbox" checked={form.doc_auto_send_agent || false}
+                      onChange={e => setForm(f => ({ ...f, doc_auto_send_agent: e.target.checked }))} />
+                    🤝 仲介業者へ自動送信（チェックなし＝スタッフ対応）
+                  </label>
+                </div>
               {(form.visibility === 'agent' || form.visibility === 'both') && (
                 <div style={{ marginTop: 12, padding: 12, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
                   <p style={{ fontSize: 12, color: '#0369a1', fontWeight: 700, margin: '0 0 8px' }}>🏠 仲介業者向け設定</p>
@@ -581,7 +595,7 @@ export default function InvestmentProperties() {
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>{i.published ? '✅' : '🔒'}</td>
                       <td style={{ padding: '14px 16px' }}>
                 <button onClick={() => { setEditItem(i); setForm({ name: i.name || '', address: i.address || '', price: String(i.price || ''), yield_rate: String(i.yield_rate || ''), building_type: i.building_type || '', built_year: String(i.built_year || ''), structure: i.structure || '', total_units: String(i.total_units || ''), occupied_units: String(i.occupied_units || ''), monthly_income: String(i.monthly_income || ''), area: String(i.area || ''), land_area: String(i.land_area || ''), nearest_station: i.nearest_station || '', walk_minutes: String(i.walk_minutes || ''), management_company: i.management_company || '', management_type: i.management_type || '', management_fee: String(i.management_fee || ''), repair_reserve: String(i.repair_reserve || ''), land_right: i.land_right || '', shared_ownership: i.shared_ownership || '', exclusive_area: String(i.exclusive_area || ''), water: i.water || '', electricity: i.electricity || '', gas: i.gas || '', road_frontage: i.road_frontage || '', fixed_asset_tax: String(i.fixed_asset_tax || ''), land_area_registry: String(i.land_area_registry || ''), city_planning: i.city_planning || '', use_district: i.use_district || '', other_regulations: i.other_regulations || '', reform_history: i.reform_history || '', loan_simulation: i.loan_simulation || '', remarks: i.remarks || '', features: i.features ? i.features.join('、') : '', description: i.description || '', status: i.status || 'available', published: i.published ?? true, floor_plan_url: i.floor_plan_url || '',
-              visibility: i.visibility || 'public', viewing_method: i.viewing_method || '', staff_name: i.staff_name || '', staff_phone: i.staff_phone || '', staff_email: i.staff_email || '', keybox_code: i.keybox_code || '', keybox_location: i.keybox_location || '' }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }}
+              visibility: i.visibility || 'public', viewing_method: i.viewing_method || '', staff_name: i.staff_name || '', staff_phone: i.staff_phone || '', staff_email: i.staff_email || '', keybox_code: i.keybox_code || '', keybox_location: i.keybox_location || '', doc_auto_send_public: i.doc_auto_send_public || false, doc_auto_send_agent: i.doc_auto_send_agent || false }); setUploadPreviews(Array.isArray(i.images) ? i.images : []); setShowForm(true) }}
                   style={{ background: '#e8f4fd', color: '#1a6aad', border: '1px solid #b3d4f0', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, marginRight: 4 }}>
                   編集
                 </button>
