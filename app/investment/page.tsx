@@ -160,6 +160,8 @@ export default function InvestmentProperties() {
     staff_email: form.staff_email || null,
     keybox_code: form.keybox_code || null,
     keybox_location: form.keybox_location || null,
+    doc_auto_send_public: form.doc_auto_send_public || false,
+    doc_auto_send_agent: form.doc_auto_send_agent || false,
     }
     let error
     if (editItem) {
