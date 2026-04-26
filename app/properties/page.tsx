@@ -113,7 +113,7 @@ export default function Properties() {
   }
 
   const uploadImages = async (): Promise<string[]> => {
-    if (uploadFiles.length === 0) return uploadPreviews
+    if (uploadFiles.length === 0) return []
     setUploading(true)
     const urls: string[] = []
     for (const file of uploadFiles) {
