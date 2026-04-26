@@ -616,7 +616,7 @@ export default function Properties() {
                   </button>
                   <button
                   onClick={() => handleDelete(i.id, i.name)}
-                  style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 13, padding: "4px 8px" }}
+                  style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                   >
                     削除
                   </button>
