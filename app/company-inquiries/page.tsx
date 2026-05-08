@@ -25,6 +25,12 @@ type Inquiry = {
   created_at: string
 }
 
+type PartnerAccount = {
+  id: string
+  company_inquiry_id: string
+  deleted_at: string | null
+}
+
 const statusOptions = [
   { value: 'pending', label: '審査中', color: '#f59e0b', bg: '#fef3c7' },
   { value: 'approved', label: '承認済み', color: '#059669', bg: '#d1fae5' },
@@ -38,6 +44,7 @@ export default function CompanyInquiriesPage() {
   const [memo, setMemo] = useState('')
   const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [partnerMap, setPartnerMap] = useState<Record<string, PartnerAccount>>({})
 
   useEffect(() => {
     fetchInquiries()
@@ -50,6 +57,16 @@ export default function CompanyInquiriesPage() {
       .select('*')
       .order('created_at', { ascending: false })
     setInquiries(data || [])
+
+    const { data: partners } = await supabase
+      .from('partner_users')
+      .select('id, company_inquiry_id, deleted_at')
+    const map: Record<string, PartnerAccount> = {}
+    for (const p of partners || []) {
+      if (p.company_inquiry_id) map[p.company_inquiry_id] = p
+    }
+    setPartnerMap(map)
+
     setLoading(false)
   }
 
@@ -89,6 +106,50 @@ export default function CompanyInquiriesPage() {
       }
       setInquiries(prev => prev.map(i => i.id === inquiry.id ? { ...i, status: 'approved' } : i))
       if (selected?.id === inquiry.id) setSelected(prev => prev ? { ...prev, status: 'approved' } : null)
+    } catch {
+      alert('通信エラーが発生しました')
+    }
+  }
+
+  const deleteAccount = async (inquiry: Inquiry, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const partner = partnerMap[inquiry.id]
+    if (!partner) return
+    if (!confirm(`${inquiry.company_name}のパートナーアカウントを削除しますか？\n※90日間は復元可能です`)) return
+    try {
+      const res = await fetch('/api/partner-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partner_user_id: partner.id }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'エラーが発生しました')
+        return
+      }
+      setPartnerMap(prev => ({ ...prev, [inquiry.id]: { ...partner, deleted_at: new Date().toISOString() } }))
+    } catch {
+      alert('通信エラーが発生しました')
+    }
+  }
+
+  const restoreAccount = async (inquiry: Inquiry, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const partner = partnerMap[inquiry.id]
+    if (!partner) return
+    if (!confirm(`${inquiry.company_name}のパートナーアカウントを復元しますか？`)) return
+    try {
+      const res = await fetch('/api/partner-restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partner_user_id: partner.id }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'エラーが発生しました')
+        return
+      }
+      setPartnerMap(prev => ({ ...prev, [inquiry.id]: { ...partner, deleted_at: null } }))
     } catch {
       alert('通信エラーが発生しました')
     }
@@ -150,7 +211,11 @@ export default function CompanyInquiriesPage() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {filtered.map(inquiry => {
-                const st = getStatus(inquiry.status)
+                const partner = partnerMap[inquiry.id]
+                const isPartnerDeleted = !!partner?.deleted_at
+                const badge = isPartnerDeleted
+                  ? { label: '削除済み', color: '#6b7280', bg: '#f3f4f6' }
+                  : getStatus(inquiry.status)
                 return (
                   <div
                     key={inquiry.id}
@@ -170,8 +235,8 @@ export default function CompanyInquiriesPage() {
                         <div style={{ fontWeight: 700, fontSize: 16, color: '#1a3a5c' }}>{inquiry.company_name}</div>
                         <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>{inquiry.department}　{inquiry.contact_name}</div>
                       </div>
-                      <span style={{ background: st.bg, color: st.color, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 50 }}>
-                        {st.label}
+                      <span style={{ background: badge.bg, color: badge.color, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 50 }}>
+                        {badge.label}
                       </span>
                     </div>
                     <div style={{ fontSize: 13, color: '#6b7280', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -183,23 +248,59 @@ export default function CompanyInquiriesPage() {
                       <div style={{ fontSize: 12, color: '#9ca3af' }}>
                         {new Date(inquiry.created_at).toLocaleString('ja-JP')}
                       </div>
-                      {inquiry.status === 'pending' && (
-                        <button
-                          onClick={e => approveCompany(inquiry, e)}
-                          style={{
-                            background: '#c9a84c',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '5px 14px',
-                            borderRadius: 50,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          承認してアカウント発行
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {inquiry.status === 'pending' && (
+                          <button
+                            onClick={e => approveCompany(inquiry, e)}
+                            style={{
+                              background: '#c9a84c',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '5px 14px',
+                              borderRadius: 50,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            承認してアカウント発行
+                          </button>
+                        )}
+                        {inquiry.status === 'approved' && partner && !isPartnerDeleted && (
+                          <button
+                            onClick={e => deleteAccount(inquiry, e)}
+                            style={{
+                              background: '#dc2626',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '5px 14px',
+                              borderRadius: 50,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            アカウント削除
+                          </button>
+                        )}
+                        {inquiry.status === 'approved' && isPartnerDeleted && (
+                          <button
+                            onClick={e => restoreAccount(inquiry, e)}
+                            style={{
+                              background: '#1a3a5c',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '5px 14px',
+                              borderRadius: 50,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            アカウント復元
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
