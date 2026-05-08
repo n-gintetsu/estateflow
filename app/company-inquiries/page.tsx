@@ -45,6 +45,7 @@ export default function CompanyInquiriesPage() {
   const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState('all')
   const [partnerMap, setPartnerMap] = useState<Record<string, PartnerAccount>>({})
+  const [approvingId, setApprovingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchInquiries()
@@ -90,7 +91,9 @@ export default function CompanyInquiriesPage() {
 
   const approveCompany = async (inquiry: Inquiry, e: React.MouseEvent) => {
     e.stopPropagation()
+    if (approvingId) return
     if (!confirm(`${inquiry.company_name}を承認してパートナーアカウントを発行しますか？`)) return
+    setApprovingId(inquiry.id)
     try {
       const res = await fetch('/api/approve-company', {
         method: 'POST',
@@ -111,6 +114,8 @@ export default function CompanyInquiriesPage() {
       await fetchPartnerAccounts()
     } catch {
       alert('通信エラーが発生しました')
+    } finally {
+      setApprovingId(null)
     }
   }
 
@@ -255,18 +260,19 @@ export default function CompanyInquiriesPage() {
                         {inquiry.status === 'pending' && (
                           <button
                             onClick={e => approveCompany(inquiry, e)}
+                            disabled={approvingId === inquiry.id}
                             style={{
-                              background: '#c9a84c',
+                              background: approvingId === inquiry.id ? '#9ca3af' : '#c9a84c',
                               color: '#fff',
                               border: 'none',
                               padding: '5px 14px',
                               borderRadius: 50,
                               fontSize: 12,
                               fontWeight: 700,
-                              cursor: 'pointer',
+                              cursor: approvingId === inquiry.id ? 'not-allowed' : 'pointer',
                             }}
                           >
-                            承認してアカウント発行
+                            {approvingId === inquiry.id ? '処理中...' : '承認してアカウント発行'}
                           </button>
                         )}
                         {inquiry.status === 'approved' && partner && !isPartnerDeleted && (

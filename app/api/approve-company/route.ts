@@ -51,37 +51,59 @@ export async function POST(req: NextRequest) {
 
     const { email, company_name } = inquiry
 
-    // 重複チェック
+    // 重複チェック（削除済みかどうかも確認）
     const { data: existing } = await supabase
       .from('partner_users')
-      .select('id')
+      .select('id, deleted_at')
       .eq('email', email)
       .maybeSingle()
 
-    if (existing) {
-      return NextResponse.json(
-        { error: 'このメールアドレスはすでに登録済みです' },
-        { status: 409 }
-      )
-    }
-
     const tempPassword = generateTempPassword()
 
-    // partner_usersに挿入
-    const { error: insertErr } = await supabase
-      .from('partner_users')
-      .insert({
-        email,
-        password: tempPassword,
-        company_name,
-        company_inquiry_id,
-        is_active: true,
-        must_change_password: true,
-      })
+    if (existing) {
+      if (existing.deleted_at === null) {
+        // アクティブなアカウントが存在する → 409
+        return NextResponse.json(
+          { error: 'このメールアドレスはすでに登録済みです' },
+          { status: 409 }
+        )
+      }
 
-    if (insertErr) {
-      console.error(insertErr)
-      return NextResponse.json({ error: 'アカウント作成に失敗しました' }, { status: 500 })
+      // 削除済みアカウントを復活
+      const { error: restoreErr } = await supabase
+        .from('partner_users')
+        .update({
+          password: tempPassword,
+          company_name,
+          company_inquiry_id,
+          is_active: true,
+          must_change_password: true,
+          deleted_at: null,
+          deletion_warned_at: null,
+        })
+        .eq('id', existing.id)
+
+      if (restoreErr) {
+        console.error('restore error:', restoreErr)
+        return NextResponse.json({ error: 'アカウントの復活に失敗しました' }, { status: 500 })
+      }
+    } else {
+      // 新規挿入
+      const { error: insertErr } = await supabase
+        .from('partner_users')
+        .insert({
+          email,
+          password: tempPassword,
+          company_name,
+          company_inquiry_id,
+          is_active: true,
+          must_change_password: true,
+        })
+
+      if (insertErr) {
+        console.error('insert error:', insertErr)
+        return NextResponse.json({ error: 'アカウント作成に失敗しました' }, { status: 500 })
+      }
     }
 
     // company_inquiriesのstatusをapprovedに更新
@@ -91,7 +113,7 @@ export async function POST(req: NextRequest) {
       .eq('id', company_inquiry_id)
 
     if (updateErr) {
-      console.error(updateErr)
+      console.error('status update error:', updateErr)
     }
 
     // メール送信
@@ -234,12 +256,17 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`
 
-    await resend.emails.send({
-      from: 'GINTETSU不動産 <info@gintetsu-fudosan.co.jp>',
-      to: [email],
-      subject: '【GINTETSU不動産】パートナー会員登録のご承認について',
-      html,
-    })
+    try {
+      const result = await resend.emails.send({
+        from: 'GINTETSU不動産 <info@gintetsu-fudosan.co.jp>',
+        to: [email],
+        subject: '【GINTETSU不動産】パートナー会員登録のご承認について',
+        html,
+      })
+      console.log('approval email sent:', result)
+    } catch (mailErr) {
+      console.error('approval email error:', mailErr)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
