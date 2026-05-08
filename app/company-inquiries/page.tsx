@@ -50,6 +50,17 @@ export default function CompanyInquiriesPage() {
     fetchInquiries()
   }, [])
 
+  const fetchPartnerAccounts = async () => {
+    const res = await fetch('/api/partner-accounts')
+    if (!res.ok) return
+    const partners: PartnerAccount[] = await res.json()
+    const map: Record<string, PartnerAccount> = {}
+    for (const p of partners) {
+      map[p.company_inquiry_id] = p
+    }
+    setPartnerMap(map)
+  }
+
   const fetchInquiries = async () => {
     setLoading(true)
     const { data } = await supabase
@@ -57,16 +68,7 @@ export default function CompanyInquiriesPage() {
       .select('*')
       .order('created_at', { ascending: false })
     setInquiries(data || [])
-
-    const { data: partners } = await supabase
-      .from('partner_users')
-      .select('id, company_inquiry_id, deleted_at')
-    const map: Record<string, PartnerAccount> = {}
-    for (const p of partners || []) {
-      if (p.company_inquiry_id) map[p.company_inquiry_id] = p
-    }
-    setPartnerMap(map)
-
+    await fetchPartnerAccounts()
     setLoading(false)
   }
 
@@ -106,6 +108,7 @@ export default function CompanyInquiriesPage() {
       }
       setInquiries(prev => prev.map(i => i.id === inquiry.id ? { ...i, status: 'approved' } : i))
       if (selected?.id === inquiry.id) setSelected(prev => prev ? { ...prev, status: 'approved' } : null)
+      await fetchPartnerAccounts()
     } catch {
       alert('通信エラーが発生しました')
     }
