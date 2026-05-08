@@ -1,4 +1,5 @@
 'use client'
+export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
@@ -66,6 +67,31 @@ export default function CompanyInquiriesPage() {
     setInquiries(prev => prev.map(i => i.id === selected.id ? { ...i, internal_memo: memo } : i))
     setSaving(false)
     alert('保存しました！')
+  }
+
+  const approveCompany = async (inquiry: Inquiry, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!confirm(`${inquiry.company_name}を承認してパートナーアカウントを発行しますか？`)) return
+    try {
+      const res = await fetch('/api/approve-company', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company_inquiry_id: inquiry.id }),
+      })
+      if (res.status === 409) {
+        alert('このメールアドレスはすでに登録済みです')
+        return
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'エラーが発生しました')
+        return
+      }
+      setInquiries(prev => prev.map(i => i.id === inquiry.id ? { ...i, status: 'approved' } : i))
+      if (selected?.id === inquiry.id) setSelected(prev => prev ? { ...prev, status: 'approved' } : null)
+    } catch {
+      alert('通信エラーが発生しました')
+    }
   }
 
   const openDetail = (inquiry: Inquiry) => {
@@ -153,8 +179,27 @@ export default function CompanyInquiriesPage() {
                       <span>✉️ {inquiry.email}</span>
                       <span>🏢 {inquiry.business_type}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>
-                      {new Date(inquiry.created_at).toLocaleString('ja-JP')}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                      <div style={{ fontSize: 12, color: '#9ca3af' }}>
+                        {new Date(inquiry.created_at).toLocaleString('ja-JP')}
+                      </div>
+                      {inquiry.status === 'pending' && (
+                        <button
+                          onClick={e => approveCompany(inquiry, e)}
+                          style={{
+                            background: '#c9a84c',
+                            color: '#fff',
+                            border: 'none',
+                            padding: '5px 14px',
+                            borderRadius: 50,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          承認してアカウント発行
+                        </button>
+                      )}
                     </div>
                   </div>
                 )
