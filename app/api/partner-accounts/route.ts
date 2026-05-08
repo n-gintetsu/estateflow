@@ -11,7 +11,7 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from('partner_users')
-    .select('id, company_inquiry_id, deleted_at')
+    .select('id, company_name, email, company_inquiry_id, deleted_at, is_active')
     .not('company_inquiry_id', 'is', null)
 
   if (error) {
