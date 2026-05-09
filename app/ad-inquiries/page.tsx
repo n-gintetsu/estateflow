@@ -15,10 +15,10 @@ const STATUS_MAP: any = {
 }
 
 const INQUIRY_TYPE_MAP: any = {
-  ad_placement: { label: '広告掲載依頼', icon: '📣', bg: '#fef3c7', color: '#92400e' },
   viewing: { label: '内見依頼', icon: '🏠', bg: '#dbeafe', color: '#1e40af' },
-  application: { label: '購入/入居申込', icon: '📝', bg: '#fce7f3', color: '#9d174d' },
-  doc_request: { label: '物件資料請求', icon: '📄', bg: '#dcfce7', color: '#166534' },
+  document: { label: '物件資料請求', icon: '📄', bg: '#dcfce7', color: '#166534' },
+  advertising: { label: '広告掲載依頼', icon: '📣', bg: '#fef3c7', color: '#92400e' },
+  purchase: { label: '購入/入居申込', icon: '📝', bg: '#fce7f3', color: '#9d174d' },
   other: { label: 'その他', icon: '💬', bg: '#f1f5f9', color: '#475569' },
 }
 
@@ -34,9 +34,6 @@ export default function AdInquiriesPage() {
   const [filter, setFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [selected, setSelected] = useState<any>(null)
-  const [editingMemo, setEditingMemo] = useState(false)
-  const [memoText, setMemoText] = useState('')
-  const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
 
   const fetchItems = async () => {
@@ -58,18 +55,6 @@ export default function AdInquiriesPage() {
     if (!confirm(`「${name}」からの問い合わせを削除しますか？`)) return
     await supabase.from('ad_inquiries').delete().eq('id', id)
     setSelected(null)
-    await fetchItems()
-  }
-
-  const handleSaveMemo = async () => {
-    if (!selected) return
-    setSaving(true)
-    await supabase.from('ad_inquiries').update({ internal_memo: memoText, updated_at: new Date().toISOString() }).eq('id', selected.id)
-    setSelected((prev: any) => ({ ...prev, internal_memo: memoText }))
-    setEditingMemo(false)
-    setSaving(false)
-    setMsg('✅ メモを保存しました')
-    setTimeout(() => setMsg(''), 3000)
     await fetchItems()
   }
 
@@ -162,7 +147,7 @@ export default function AdInquiriesPage() {
                   const t = INQUIRY_TYPE_MAP[item.inquiry_type]
                   return (
                     <div key={item.id}
-                      onClick={() => { setSelected(item); setMemoText(item.internal_memo || ''); setEditingMemo(false) }}
+                      onClick={() => { setSelected(item) }}
                       style={{ background: 'white', borderRadius: 12, padding: 16, cursor: 'pointer', border: selected?.id === item.id ? '2px solid #1a3a5c' : '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, gap: 8, flexWrap: 'wrap' as const }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
@@ -180,9 +165,6 @@ export default function AdInquiriesPage() {
                       <div style={{ fontSize: 12, color: '#6b7280' }}>✉️ {item.email}</div>
                       {item.property_name && (
                         <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>🏢 対象物件: {item.property_name}</div>
-                      )}
-                      {item.advertising_purpose && (
-                        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>📌 {item.advertising_purpose}</div>
                       )}
                       <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>{new Date(item.created_at).toLocaleString('ja-JP')}</div>
                     </div>
@@ -223,15 +205,6 @@ export default function AdInquiriesPage() {
                   <div style={{ fontSize: 14, color: '#1e293b' }}>{selected.phone}</div>
                 </div>
               )}
-              {selected.card_url && (
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', marginBottom: 4 }}>名刺</div>
-                  <a href={selected.card_url} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'inline-block', padding: '6px 12px', background: '#eff6ff', color: '#1d4ed8', borderRadius: 6, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
-                    📇 名刺を表示
-                  </a>
-                </div>
-              )}
               {selected.property_name && (
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', marginBottom: 2 }}>対象物件</div>
@@ -259,29 +232,6 @@ export default function AdInquiriesPage() {
                     )
                   })}
                 </div>
-              </div>
-
-              {/* 内部メモ */}
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 14, marginBottom: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280' }}>📝 社内メモ</div>
-                  {!editingMemo ? (
-                    <button onClick={() => setEditingMemo(true)} style={{ background: '#eff6ff', color: '#1d4ed8', border: 'none', padding: '3px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>✏️ 編集</button>
-                  ) : (
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={handleSaveMemo} disabled={saving} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '3px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>{saving ? '保存中' : '💾 保存'}</button>
-                      <button onClick={() => { setEditingMemo(false); setMemoText(selected.internal_memo || '') }} style={{ background: '#f1f5f9', color: '#374151', border: 'none', padding: '3px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>キャンセル</button>
-                    </div>
-                  )}
-                </div>
-                {editingMemo ? (
-                  <textarea value={memoText} onChange={e => setMemoText(e.target.value)}
-                    style={{ width: '100%', minHeight: 80, padding: 8, border: '1px solid #d1d5db', borderRadius: 6, fontSize: 12, fontFamily: 'inherit', resize: 'vertical' as const, boxSizing: 'border-box' as const }} />
-                ) : (
-                  <div style={{ fontSize: 12, color: '#374151', background: '#fffbeb', borderRadius: 6, padding: 10, minHeight: 40, whiteSpace: 'pre-wrap' as const, lineHeight: 1.6 }}>
-                    {selected.internal_memo || <span style={{ color: '#94a3b8' }}>（メモはまだありません）</span>}
-                  </div>
-                )}
               </div>
 
               <button onClick={() => handleDelete(selected.id, selected.company_name)}
