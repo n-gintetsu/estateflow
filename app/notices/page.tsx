@@ -57,7 +57,7 @@ export default function NoticesPage() {
 
   const fetchPartners = async () => {
     try {
-      const res = await fetch('/api/partner-accounts')
+      const res = await fetch('/api/agents')
       const data = await res.json()
       setPartners(Array.isArray(data) ? data : [])
     } catch {
