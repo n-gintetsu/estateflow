@@ -148,8 +148,16 @@ export default function RentalProperties() {
     }
     let error
     if (editItem) {
-      const { error: e } = await supabase.from('rental_properties').update(payload).eq('id', editItem.id)
-      error = e
+      // UPDATE は service_role キーを使う API ルート経由（rental_properties に UPDATE ポリシー未設定のため）
+      const res = await fetch('/api/rental-properties', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editItem.id, ...payload }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        error = { message: body.error || 'Update failed' } as Error
+      }
     } else {
       const { error: e } = await supabase.from('rental_properties').insert([payload])
       error = e
