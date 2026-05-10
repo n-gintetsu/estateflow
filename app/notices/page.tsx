@@ -6,10 +6,16 @@ type Notice = {
   title: string
   body: string
   target_type: string
+  agent_id: string | null
   priority: string
   status: string
   published_at: string | null
   created_at: string
+}
+
+type PartnerUser = {
+  id: string
+  company_name: string
 }
 
 const PRIORITY_LABELS: Record<string, string> = {
@@ -28,9 +34,12 @@ const EMPTY_FORM = { title: '', body: '', priority: 'normal' }
 
 export default function NoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([])
+  const [partners, setPartners] = useState<PartnerUser[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ ...EMPTY_FORM })
+  const [targetMode, setTargetMode] = useState<'all' | 'specific'>('all')
+  const [agentId, setAgentId] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
 
@@ -46,10 +55,30 @@ export default function NoticesPage() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchNotices() }, [])
+  const fetchPartners = async () => {
+    try {
+      const res = await fetch('/api/partner-accounts')
+      const data = await res.json()
+      setPartners(Array.isArray(data) ? data : [])
+    } catch {
+      setPartners([])
+    }
+  }
+
+  useEffect(() => {
+    fetchNotices()
+    fetchPartners()
+  }, [])
+
+  const resetForm = () => {
+    setForm({ ...EMPTY_FORM })
+    setTargetMode('all')
+    setAgentId('')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (targetMode === 'specific' && !agentId) return
     setSubmitting(true)
     try {
       const res = await fetch('/api/notices', {
@@ -61,10 +90,11 @@ export default function NoticesPage() {
           priority: form.priority,
           target_type: 'agent',
           status: 'published',
+          agent_id: targetMode === 'specific' ? agentId : null,
         }),
       })
       if (res.ok) {
-        setForm({ ...EMPTY_FORM })
+        resetForm()
         setShowForm(false)
         setSuccessMsg('✅ お知らせを送信しました')
         setTimeout(() => setSuccessMsg(''), 4000)
@@ -82,6 +112,12 @@ export default function NoticesPage() {
   }
 
   const pStyle = (p: string) => PRIORITY_STYLES[p] || PRIORITY_STYLES.normal
+
+  const getAgentLabel = (notice: Notice) => {
+    if (!notice.agent_id) return '🏢 全業者'
+    const partner = partners.find(p => p.id === notice.agent_id)
+    return partner ? `🏢 ${partner.company_name}` : '🏢 特定業者'
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -115,6 +151,54 @@ export default function NoticesPage() {
             </div>
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'grid', gap: 16 }}>
+
+                {/* 送信先選択 */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 8 }}>
+                    送信先 <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <div style={{ display: 'flex', gap: 24 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#1e293b' }}>
+                      <input
+                        type="radio"
+                        name="targetMode"
+                        value="all"
+                        checked={targetMode === 'all'}
+                        onChange={() => { setTargetMode('all'); setAgentId('') }}
+                        style={{ accentColor: '#1a3a5c', width: 16, height: 16 }}
+                      />
+                      全業者へ送信
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#1e293b' }}>
+                      <input
+                        type="radio"
+                        name="targetMode"
+                        value="specific"
+                        checked={targetMode === 'specific'}
+                        onChange={() => setTargetMode('specific')}
+                        style={{ accentColor: '#1a3a5c', width: 16, height: 16 }}
+                      />
+                      特定業者を指定
+                    </label>
+                  </div>
+
+                  {targetMode === 'specific' && (
+                    <div style={{ marginTop: 10 }}>
+                      <select
+                        value={agentId}
+                        onChange={e => setAgentId(e.target.value)}
+                        required
+                        style={{ ...inp, maxWidth: 320 }}
+                      >
+                        <option value="">業者を選択してください</option>
+                        {partners.map(p => (
+                          <option key={p.id} value={p.id}>{p.company_name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
                     タイトル <span style={{ color: '#dc2626' }}>*</span>
@@ -153,15 +237,15 @@ export default function NoticesPage() {
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, paddingTop: 4 }}>
                   <button
                     type="button"
-                    onClick={() => { setShowForm(false); setForm({ ...EMPTY_FORM }) }}
+                    onClick={() => { setShowForm(false); resetForm() }}
                     style={{ padding: '10px 24px', borderRadius: 8, border: '1.5px solid #e2e8f0', background: 'white', color: '#374151', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
                   >
                     キャンセル
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting}
-                    style={{ padding: '10px 28px', borderRadius: 8, border: 'none', background: submitting ? '#d1d5db' : '#c9a84c', color: 'white', fontSize: 14, fontWeight: 700, cursor: submitting ? 'default' : 'pointer' }}
+                    disabled={submitting || (targetMode === 'specific' && !agentId)}
+                    style={{ padding: '10px 28px', borderRadius: 8, border: 'none', background: (submitting || (targetMode === 'specific' && !agentId)) ? '#d1d5db' : '#c9a84c', color: 'white', fontSize: 14, fontWeight: 700, cursor: (submitting || (targetMode === 'specific' && !agentId)) ? 'default' : 'pointer' }}
                   >
                     {submitting ? '送信中...' : '📨 送信する（即時公開）'}
                   </button>
@@ -189,7 +273,7 @@ export default function NoticesPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  {['タイトル', '本文', '重要度', '対象', '公開日時', 'ステータス'].map(h => (
+                  {['タイトル', '本文', '重要度', '送信先', '公開日時', 'ステータス'].map(h => (
                     <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1a3a5c', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -208,8 +292,8 @@ export default function NoticesPage() {
                         {PRIORITY_LABELS[n.priority] || n.priority}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>
-                      {n.target_type === 'agent' ? '🏢 仲介業者' : n.target_type === 'all' ? '全員' : n.target_type}
+                    <td style={{ padding: '12px 16px', fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap', maxWidth: 160 }}>
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getAgentLabel(n)}</div>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>
                       {n.published_at ? new Date(n.published_at).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}

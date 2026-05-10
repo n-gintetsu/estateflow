@@ -11,7 +11,7 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from('notices')
-    .select('id, target_type, title, body, priority, status, created_at, published_at')
+    .select('id, target_type, agent_id, title, body, priority, status, created_at, published_at')
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -23,16 +23,19 @@ export async function POST(request: NextRequest) {
 
   if (!payload.title) return NextResponse.json({ error: 'title is required' }, { status: 400 })
 
+  const insertData: Record<string, unknown> = {
+    title: payload.title,
+    body: payload.body || '',
+    target_type: payload.target_type || 'agent',
+    priority: payload.priority || 'normal',
+    status: payload.status || 'published',
+    published_at: payload.status === 'published' ? new Date().toISOString() : null,
+    agent_id: payload.agent_id || null,
+  }
+
   const { data, error } = await supabase
     .from('notices')
-    .insert([{
-      title: payload.title,
-      body: payload.body || '',
-      target_type: payload.target_type || 'agent',
-      priority: payload.priority || 'normal',
-      status: payload.status || 'published',
-      published_at: payload.status === 'published' ? new Date().toISOString() : null,
-    }])
+    .insert([insertData])
     .select()
     .single()
 
