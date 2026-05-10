@@ -31,6 +31,7 @@ const navGroups = [
     { id: 'staff', label: 'スタッフ管理', icon: '👥', href: '/staff' },
     { id: 'partner-notifications', label: 'パートナーお知らせ', icon: '📣', href: '/partner-notifications' },
     { id: 'notices', label: '仲介業者お知らせ', icon: '🔔', href: '/notices' },
+    { id: 'reservations', label: '無料相談予約', icon: '📅', href: '/reservations' },
   ]},
 ]
 
