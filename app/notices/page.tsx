@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 type Notice = {
   id: string
@@ -33,6 +33,8 @@ const PRIORITY_STYLES: Record<string, { bg: string; color: string }> = {
 const EMPTY_FORM = { title: '', body: '', priority: 'normal' }
 
 export default function NoticesPage() {
+  const formRef = useRef<HTMLDivElement>(null)
+
   const [notices, setNotices] = useState<Notice[]>([])
   const [partners, setPartners] = useState<PartnerUser[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,6 +78,11 @@ export default function NoticesPage() {
     setAgentId('')
   }
 
+  const openForm = () => {
+    setShowForm(true)
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (targetMode === 'specific' && !agentId) return
@@ -93,13 +100,18 @@ export default function NoticesPage() {
           agent_id: targetMode === 'specific' ? agentId : null,
         }),
       })
-      if (res.ok) {
-        resetForm()
-        setShowForm(false)
-        setSuccessMsg('✅ お知らせを送信しました')
-        setTimeout(() => setSuccessMsg(''), 4000)
-        fetchNotices()
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        console.error('[notices POST] error:', res.status, errData)
+        return
       }
+      resetForm()
+      setShowForm(false)
+      setSuccessMsg('✅ お知らせを送信しました')
+      setTimeout(() => setSuccessMsg(''), 4000)
+      fetchNotices()
+    } catch (err) {
+      console.error('[notices POST] network error:', err)
     } finally {
       setSubmitting(false)
     }
@@ -143,7 +155,7 @@ export default function NoticesPage() {
         ) : null}
 
         {showForm ? (
-          <div style={{ background: 'white', borderRadius: 12, padding: 28, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', marginBottom: 28, border: '1.5px solid #c9a84c' }}>
+          <div ref={formRef} style={{ background: 'white', borderRadius: 12, padding: 28, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', marginBottom: 28, border: '1.5px solid #c9a84c' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
               <span style={{ fontSize: 18 }}>🏢</span>
               <h2 style={{ fontSize: 16, fontWeight: 700, color: '#92400e', margin: 0 }}>仲介業者向けお知らせ送信</h2>
@@ -263,7 +275,7 @@ export default function NoticesPage() {
               <div style={{ fontSize: 40, marginBottom: 12 }}>🔔</div>
               <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 20 }}>お知らせがまだありません</p>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={openForm}
                 style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#c9a84c', color: 'white', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
               >
                 最初のお知らせを送信する
