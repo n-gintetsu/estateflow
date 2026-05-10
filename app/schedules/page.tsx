@@ -126,14 +126,16 @@ export default function SchedulePage() {
     }
   }
 
-  const filtered = filter === 'all' ? items : items.filter(i => i.status === filter)
+  // 業者ポータル経由データ（notes が「【」で始まる）は ad_inquiries 管理のため除外
+  const nonAgentItems = items.filter(i => !i.notes?.startsWith('【'))
+  const filtered = filter === 'all' ? nonAgentItems : nonAgentItems.filter(i => i.status === filter)
 
   const counts = {
-    all: items.length,
-    confirmed: items.filter(i => i.status === 'confirmed').length,
-    tentative: items.filter(i => i.status === 'tentative').length,
-    pending: items.filter(i => i.status === 'pending').length,
-    cancelled: items.filter(i => i.status === 'cancelled').length,
+    all: nonAgentItems.length,
+    confirmed: nonAgentItems.filter(i => i.status === 'confirmed').length,
+    tentative: nonAgentItems.filter(i => i.status === 'tentative').length,
+    pending: nonAgentItems.filter(i => i.status === 'pending').length,
+    cancelled: nonAgentItems.filter(i => i.status === 'cancelled').length,
   }
 
   const inp = { width: '100%', padding: '9px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }
