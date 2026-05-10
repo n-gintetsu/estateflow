@@ -6,8 +6,6 @@ type Schedule = {
   id: string
   property_name: string | null
   customer_name: string | null
-  email: string | null
-  phone: string | null
   scheduled_at: string | null
   status: string | null
   notes: string | null
@@ -86,10 +84,10 @@ export default function ReservationsPage() {
         <p style={{ color: '#94a3b8', textAlign: 'center', padding: 40 }}>予約データがありません</p>
       ) : (
         <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 860 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 640 }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
-                {['日時', '物件名', 'お客様名', 'メール', '電話', 'ステータス', 'メモ', '操作'].map(h => (
+                {['日時', '物件名', 'お客様名', 'ステータス', '連絡先・メモ', '操作'].map(h => (
                   <th key={h} style={{ padding: '12px 14px', textAlign: 'left', borderBottom: '2px solid #e5e7eb', color: '#374151', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -108,14 +106,12 @@ export default function ReservationsPage() {
                       {item.property_name || '—'}
                     </td>
                     <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>{item.customer_name || '—'}</td>
-                    <td style={{ padding: '12px 14px', color: '#475569' }}>{item.email || '—'}</td>
-                    <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>{item.phone || '—'}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: sc.bg, color: sc.color, whiteSpace: 'nowrap' }}>
                         {STATUS_LABELS[item.status || ''] || item.status || '—'}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 14px', color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '12px 14px', color: '#64748b', maxWidth: 280 }}>
                       {item.notes || '—'}
                     </td>
                     <td style={{ padding: '12px 14px' }}>
