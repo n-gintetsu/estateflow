@@ -87,7 +87,7 @@ export default function ReservationsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 640 }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
-                {['日時', '物件名', 'お客様名', 'ステータス', '連絡先・メモ', '操作'].map(h => (
+                {['予約日', '物件名', 'お客様名', 'ステータス', '連絡先・メモ', '操作'].map(h => (
                   <th key={h} style={{ padding: '12px 14px', textAlign: 'left', borderBottom: '2px solid #e5e7eb', color: '#374151', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
