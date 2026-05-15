@@ -25,7 +25,8 @@ export default function DocumentsPage() {
   const handleUpload = async () => {
     if (!file || !form.title) { setMsg('❌ タイトルとファイルは必須です'); return }
     setUploading(true)
-    const fileName = `docs/${Date.now()}_${file.name}`
+    const safeName = file.name.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '') || 'document.pdf'
+    const fileName = `docs/${Date.now()}_${safeName}`
     const { error: upErr } = await supabase.storage.from('property-images').upload(fileName, file, { contentType: 'application/pdf' })
     if (upErr) { setMsg('❌ アップロード失敗: ' + upErr.message); setUploading(false); return }
     const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
