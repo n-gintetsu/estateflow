@@ -132,20 +132,30 @@ export async function POST(request: NextRequest) {
 
     const results: any[] = []
 
-    // agent_doc_request: フラグに応じた書類を取得して doc_links / has_docs を注入
+    // agent_doc_request: property_documents から物件PDFを取得して doc_links / has_docs を注入
     const enrichedVars: Record<string, string> = { ...(variables || {}) }
     if (trigger_type === 'agent_doc_request') {
-      const isAgent = variables?.is_agent === 'true'
-      const flagColumn = isAgent ? 'doc_auto_send_agent' : 'doc_auto_send_public'
-      const { data: autoDocs } = await supabase
-        .from('agent_documents')
-        .select('title, file_url, category')
-        .eq(flagColumn, true)
-        .order('created_at', { ascending: false })
-      enrichedVars.doc_links = autoDocs && autoDocs.length > 0
-        ? autoDocs.map(d => `・${d.title}：${d.file_url}`).join('\n')
-        : ''
-      enrichedVars.has_docs = autoDocs && autoDocs.length > 0 ? 'true' : 'false'
+      const isAgent = String((variables as any)?.is_agent) === 'true'
+      const propertyId = variables?.property_id
+      const propertyType = variables?.property_type
+      const visibilityCol = isAgent ? 'visible_to_agent' : 'visible_to_public'
+      if (propertyId && propertyType) {
+        const { data: propDocs } = await supabase
+          .from('property_documents')
+          .select('title, file_url')
+          .eq('property_id', propertyId)
+          .eq('property_type', propertyType)
+          .eq(visibilityCol, true)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+        enrichedVars.doc_links = propDocs && propDocs.length > 0
+          ? propDocs.map(d => `・${d.title || '資料'}：${d.file_url}`).join('\n')
+          : ''
+        enrichedVars.has_docs = propDocs && propDocs.length > 0 ? 'true' : 'false'
+      } else {
+        enrichedVars.doc_links = ''
+        enrichedVars.has_docs = 'false'
+      }
     }
 
     // 5. お客様宛メール送信
