@@ -46,10 +46,18 @@ export default function CompanyInquiriesPage() {
   const [filter, setFilter] = useState('all')
   const [partnerMap, setPartnerMap] = useState<Record<string, PartnerAccount>>({})
   const [approvingId, setApprovingId] = useState<string | null>(null)
+  const [limitCount, setLimitCount] = useState(20)
+  const [isAllMode, setIsAllMode] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAllMode(new URLSearchParams(window.location.search).get('all') === 'true')
+    }
+  }, [])
 
   useEffect(() => {
     fetchInquiries()
-  }, [])
+  }, [limitCount])
 
   const fetchPartnerAccounts = async () => {
     const res = await fetch('/api/partner-accounts')
@@ -64,10 +72,15 @@ export default function CompanyInquiriesPage() {
 
   const fetchInquiries = async () => {
     setLoading(true)
-    const { data } = await supabase
+    const allMode = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('all') === 'true'
+      : false
+    let query = supabase
       .from('company_inquiries')
       .select('*')
       .order('created_at', { ascending: false })
+    if (!allMode) query = query.limit(limitCount)
+    const { data } = await query
     setInquiries(data || [])
     await fetchPartnerAccounts()
     setLoading(false)
@@ -205,6 +218,45 @@ export default function CompanyInquiriesPage() {
             {tab.label} ({tab.count})
           </button>
         ))}
+      </div>
+
+      {/* 表示件数切り替え */}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, marginRight: 4 }}>表示件数：</span>
+        {[5, 20, 50].map(n => (
+          <button key={n} onClick={() => setLimitCount(n)}
+            style={{
+              padding: '5px 14px',
+              borderRadius: 50,
+              border: '1.5px solid',
+              borderColor: limitCount === n && !isAllMode ? '#1a3a5c' : '#d1d5db',
+              background: limitCount === n && !isAllMode ? '#1a3a5c' : 'white',
+              color: limitCount === n && !isAllMode ? 'white' : '#374151',
+              fontSize: 12,
+              fontWeight: limitCount === n && !isAllMode ? 700 : 400,
+              cursor: 'pointer',
+            }}>
+            {n}件
+          </button>
+        ))}
+        <button
+          onClick={() => window.open('/company-inquiries?all=true', '_blank')}
+          style={{
+            padding: '5px 14px',
+            borderRadius: 50,
+            border: '1.5px solid',
+            borderColor: isAllMode ? '#7c3aed' : '#d1d5db',
+            background: isAllMode ? '#7c3aed' : 'white',
+            color: isAllMode ? 'white' : '#374151',
+            fontSize: 12,
+            fontWeight: isAllMode ? 700 : 400,
+            cursor: 'pointer',
+          }}>
+          50件以上 ↗
+        </button>
+        {isAllMode ? (
+          <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 700, marginLeft: 4 }}>全件表示モード</span>
+        ) : null}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr 380px' : '1fr', gap: 24 }}>
