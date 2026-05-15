@@ -10,7 +10,7 @@ const supabase = createClient(
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ title: '', description: '', category: 'application', file_url: '' })
+  const [form, setForm] = useState({ title: '', description: '', category: 'application', file_url: '', doc_auto_send_public: false, doc_auto_send_agent: false })
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [msg, setMsg] = useState('')
@@ -31,7 +31,7 @@ export default function DocumentsPage() {
     if (upErr) { setMsg('❌ アップロード失敗: ' + upErr.message); setUploading(false); return }
     const { data: urlData } = supabase.storage.from('property-images').getPublicUrl(fileName)
     const { error } = await supabase.from('agent_documents').insert([{ ...form, file_url: urlData.publicUrl }])
-    if (error) { setMsg('❌ 保存失敗: ' + error.message) } else { setMsg('✅ 登録しました！'); setShowForm(false); setForm({ title: '', description: '', category: 'application', file_url: '' }); setFile(null); fetchDocs() }
+    if (error) { setMsg('❌ 保存失敗: ' + error.message) } else { setMsg('✅ 登録しました！'); setShowForm(false); setForm({ title: '', description: '', category: 'application', file_url: '', doc_auto_send_public: false, doc_auto_send_agent: false }); setFile(null); fetchDocs() }
     setUploading(false)
   }
 
@@ -61,6 +61,10 @@ export default function DocumentsPage() {
             <div style={{ marginBottom: 12 }}><label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>カテゴリ</label><select value={form.category} onChange={e => setForm({...form, category: e.target.value})} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, marginTop: 4 }}><option value="application">📋 申込書</option><option value="explanation">📄 重要事項説明書</option><option value="contract">📝 契約書</option><option value="other">📁 その他</option></select></div>
             <div style={{ marginBottom: 12 }}><label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>説明</label><input value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, marginTop: 4, boxSizing: 'border-box' as const }} /></div>
             <div style={{ marginBottom: 16 }}><label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>PDFファイル *</label><input type="file" accept=".pdf" onChange={e => setFile(e.target.files?.[0] || null)} style={{ display: 'block', marginTop: 4 }} /></div>
+            <div style={{ marginBottom: 16, display: 'flex', gap: 24 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}><input type="checkbox" checked={form.doc_auto_send_public} onChange={e => setForm({...form, doc_auto_send_public: e.target.checked})} />一般ユーザーに自動送信</label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}><input type="checkbox" checked={form.doc_auto_send_agent} onChange={e => setForm({...form, doc_auto_send_agent: e.target.checked})} />仲介業者に自動送信</label>
+            </div>
             <button onClick={handleUpload} disabled={uploading} style={{ background: '#1a3a5c', color: 'white', border: 'none', padding: '10px 24px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>{uploading ? 'アップロード中...' : '✅ 登録する'}</button>
           </div>
         )}
@@ -69,7 +73,11 @@ export default function DocumentsPage() {
             <div key={doc.id} style={{ background: 'white', borderRadius: 10, padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontWeight: 600, color: '#1a3a5c', marginBottom: 4 }}>{categoryLabel(doc.category)} {doc.title}</div>
-                {doc.description && <div style={{ fontSize: 13, color: '#6b7280' }}>{doc.description}</div>}
+                {doc.description && <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 4 }}>{doc.description}</div>}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {doc.doc_auto_send_public && <span style={{ fontSize: 11, background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', borderRadius: 4, padding: '2px 8px' }}>一般自動送信</span>}
+                  {doc.doc_auto_send_agent && <span style={{ fontSize: 11, background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px' }}>業者自動送信</span>}
+                </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <a href={doc.file_url} target="_blank" rel="noreferrer" style={{ background: '#e8f4fd', color: '#1a3a5c', border: 'none', padding: '6px 14px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>📥 確認</a>

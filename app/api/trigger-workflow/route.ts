@@ -132,10 +132,26 @@ export async function POST(request: NextRequest) {
 
     const results: any[] = []
 
+    // agent_doc_request: フラグに応じた書類を取得して doc_links / has_docs を注入
+    const enrichedVars: Record<string, string> = { ...(variables || {}) }
+    if (trigger_type === 'agent_doc_request') {
+      const isAgent = variables?.is_agent === 'true'
+      const flagColumn = isAgent ? 'doc_auto_send_agent' : 'doc_auto_send_public'
+      const { data: autoDocs } = await supabase
+        .from('agent_documents')
+        .select('title, file_url, category')
+        .eq(flagColumn, true)
+        .order('created_at', { ascending: false })
+      enrichedVars.doc_links = autoDocs && autoDocs.length > 0
+        ? autoDocs.map(d => `・${d.title}：${d.file_url}`).join('\n')
+        : ''
+      enrichedVars.has_docs = autoDocs && autoDocs.length > 0 ? 'true' : 'false'
+    }
+
     // 5. お客様宛メール送信
     for (const wf of workflows) {
-      const subject = replaceVars(wf.subject || '', variables)
-      const bodyText = replaceVars(wf.body || '', variables)
+      const subject = replaceVars(wf.subject || '', enrichedVars)
+      const bodyText = replaceVars(wf.body || '', enrichedVars)
       try {
         await resend.emails.send({
           from: 'noreply@gintetsu-fudosan.co.jp',
@@ -155,8 +171,8 @@ export async function POST(request: NextRequest) {
     const staffEmail = staff_notification_email || variables?.staff_email || 'info@gintetsu-fudosan.co.jp'
     if (staffWorkflows && staffWorkflows.length > 0) {
       for (const wf of staffWorkflows) {
-        const subject = replaceVars(wf.subject || '', variables)
-        const bodyText = replaceVars(wf.body || '', variables)
+        const subject = replaceVars(wf.subject || '', enrichedVars)
+        const bodyText = replaceVars(wf.body || '', enrichedVars)
         try {
           await resend.emails.send({
             from: 'noreply@gintetsu-fudosan.co.jp',
