@@ -35,15 +35,28 @@ export default function AdInquiriesPage() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [selected, setSelected] = useState<any>(null)
   const [msg, setMsg] = useState('')
+  const [limitCount, setLimitCount] = useState(20)
+  const [isAllMode, setIsAllMode] = useState(false)
 
   const fetchItems = async () => {
     setLoading(true)
-    const { data } = await supabase.from('ad_inquiries').select('*').order('created_at', { ascending: false })
+    const allMode = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('all') === 'true'
+      : false
+    let query = supabase.from('ad_inquiries').select('*').order('created_at', { ascending: false })
+    if (!allMode) query = query.limit(limitCount)
+    const { data } = await query
     setItems(data || [])
     setLoading(false)
   }
 
-  useEffect(() => { fetchItems() }, [])
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAllMode(new URLSearchParams(window.location.search).get('all') === 'true')
+    }
+  }, [])
+
+  useEffect(() => { fetchItems() }, [limitCount])
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     await supabase.from('ad_inquiries').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id)
@@ -127,6 +140,32 @@ export default function AdInquiriesPage() {
               </button>
             )
           })}
+        </div>
+
+        {/* 表示件数セレクター */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, marginRight: 4 }}>表示件数：</span>
+          {[5, 20, 50].map(n => (
+            <button key={n} onClick={() => setLimitCount(n)}
+              style={{ padding: '5px 12px', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12,
+                fontWeight: limitCount === n && !isAllMode ? 700 : 400,
+                background: limitCount === n && !isAllMode ? '#1a3a5c' : 'white',
+                color: limitCount === n && !isAllMode ? 'white' : '#374151',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              {n}件
+            </button>
+          ))}
+          <button onClick={() => window.open('/ad-inquiries?all=true', '_blank')}
+            style={{ padding: '5px 12px', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12,
+              fontWeight: isAllMode ? 700 : 400,
+              background: isAllMode ? '#7c3aed' : 'white',
+              color: isAllMode ? 'white' : '#374151',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            50件以上 ↗
+          </button>
+          {isAllMode ? (
+            <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 700, marginLeft: 4 }}>全件表示モード</span>
+          ) : null}
         </div>
 
         {/* レイアウト：左一覧 / 右詳細 */}
