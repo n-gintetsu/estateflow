@@ -62,11 +62,13 @@ const buildHtml = (bodyText: string) => `
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { trigger_type, to_email, staff_notification_email, variables } = body as {
+    const { trigger_type, to_email, staff_notification_email, variables, agent_id, agent_code } = body as {
       trigger_type: string
       to_email: string
       staff_notification_email?: string
       variables?: Record<string, string>
+      agent_id?: string
+      agent_code?: string
     }
 
     if (!trigger_type || !to_email) {
@@ -196,6 +198,37 @@ export async function POST(request: NextRequest) {
           console.error('send error for staff workflow', wf.id, e)
           results.push({ workflow_id: wf.id, workflow_name: wf.name, success: false, error: String(e) })
         }
+      }
+    }
+
+    // 7. agent_activity_logs への記録
+    if (trigger_type.startsWith('agent_')) {
+      const activityTypeMap: Record<string, string> = {
+        agent_viewing: '🏠 内見依頼',
+        agent_ad_placement: '📢 広告掲載依頼',
+        agent_doc_request: '📄 資料請求',
+        agent_application: '📝 購入・入居申込',
+        agent_other: '💬 その他',
+      }
+      const actionLabel = activityTypeMap[trigger_type] || '💬 その他'
+      const propertyName = variables?.property_name || ''
+      const detail = `[${actionLabel}] ${propertyName}`
+      try {
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+        if (serviceKey && supabaseUrl) {
+          const adminClient = createClient(supabaseUrl, serviceKey)
+          await adminClient.from('agent_activity_logs').insert({
+            agent_id: agent_id || null,
+            agent_code: agent_code || null,
+            company_name: variables?.company_name || null,
+            action_type: 'お問い合わせ送信',
+            property_id: variables?.property_id || null,
+            property_name: propertyName || null,
+            detail,
+          })
+        }
+      } catch (logErr) {
+        console.error('activity log insert error:', logErr)
       }
     }
 
