@@ -218,6 +218,13 @@ export default function AdInquiriesPage() {
             <div style={{ background: 'white', borderRadius: 12, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', position: 'sticky' as const, top: 20, maxHeight: 'calc(100vh - 60px)', overflowY: 'auto' as const }}>
               <h2 style={{ fontSize: 16, fontWeight: 'bold', margin: '0 0 16px', color: '#1e293b' }}>📋 詳細</h2>
 
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', marginBottom: 2 }}>受付日時</div>
+                <div style={{ fontSize: 14, color: '#1e293b' }}>
+                  {new Date(selected.created_at).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })}
+                </div>
+              </div>
+
               {INQUIRY_TYPE_MAP[selected.inquiry_type] && (
                 <div style={{ marginBottom: 14, background: INQUIRY_TYPE_MAP[selected.inquiry_type].bg, borderRadius: 8, padding: '8px 12px', display: 'inline-block' }}>
                   <span style={{ fontSize: 13, color: INQUIRY_TYPE_MAP[selected.inquiry_type].color, fontWeight: 700 }}>
@@ -256,6 +263,18 @@ export default function AdInquiriesPage() {
                   <div style={{ fontSize: 13, color: '#1e293b', background: '#f8fafc', borderRadius: 6, padding: 10, whiteSpace: 'pre-wrap' as const, lineHeight: 1.6 }}>{selected.message}</div>
                 </div>
               )}
+
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', marginBottom: 6 }}>名刺</div>
+                {selected.card_url ? (
+                  <div>
+                    <img src={selected.card_url} alt="名刺" style={{ width: '100%', borderRadius: 6, marginBottom: 6 }} />
+                    <a href={selected.card_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#1d4ed8' }}>別タブで開く</a>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 13, color: '#9ca3af' }}>未登録</div>
+                )}
+              </div>
 
               {/* ステータス変更 */}
               <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 14, marginBottom: 14 }}>
