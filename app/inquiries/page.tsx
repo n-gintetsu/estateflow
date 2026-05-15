@@ -23,17 +23,30 @@ export default function Inquiries() {
   const [filterType, setFilterType] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [limitCount, setLimitCount] = useState(20)
+  const [isAllMode, setIsAllMode] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAllMode(new URLSearchParams(window.location.search).get('all') === 'true')
+    }
+  }, [])
 
   useEffect(() => {
     fetchInquiries()
-  }, [])
+  }, [limitCount])
 
   const fetchInquiries = async () => {
     setLoading(true)
-    const { data } = await supabase
+    const allMode = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('all') === 'true'
+      : false
+    let query = supabase
       .from('document_requests')
       .select('*')
       .order('created_at', { ascending: false })
+    if (!allMode) query = query.limit(limitCount)
+    const { data } = await query
     setInquiries(data || [])
     setLoading(false)
   }
@@ -92,6 +105,45 @@ export default function Inquiries() {
           <option value="all">全ステータス</option>
           {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
+      </div>
+
+      {/* 表示件数切り替え */}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, marginRight: 4 }}>表示件数：</span>
+        {[20, 50, 100].map(n => (
+          <button key={n} onClick={() => setLimitCount(n)}
+            style={{
+              padding: '5px 14px',
+              borderRadius: 50,
+              border: '1.5px solid',
+              borderColor: limitCount === n && !isAllMode ? '#1a3a5c' : '#d1d5db',
+              background: limitCount === n && !isAllMode ? '#1a3a5c' : 'white',
+              color: limitCount === n && !isAllMode ? 'white' : '#374151',
+              fontSize: 12,
+              fontWeight: limitCount === n && !isAllMode ? 700 : 400,
+              cursor: 'pointer',
+            }}>
+            {n}件
+          </button>
+        ))}
+        <button
+          onClick={() => window.open('/inquiries?all=true', '_blank')}
+          style={{
+            padding: '5px 14px',
+            borderRadius: 50,
+            border: '1.5px solid',
+            borderColor: isAllMode ? '#7c3aed' : '#d1d5db',
+            background: isAllMode ? '#7c3aed' : 'white',
+            color: isAllMode ? 'white' : '#374151',
+            fontSize: 12,
+            fontWeight: isAllMode ? 700 : 400,
+            cursor: 'pointer',
+          }}>
+          100件以上 ↗
+        </button>
+        {isAllMode ? (
+          <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 700, marginLeft: 4 }}>全件表示モード</span>
+        ) : null}
       </div>
 
       {/* テーブル */}
