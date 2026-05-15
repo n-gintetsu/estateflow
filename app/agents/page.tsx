@@ -16,11 +16,24 @@ export default function AgentsPage() {
   const [editItem, setEditItem] = useState<any>(null)
   const [form, setForm] = useState({ agent_code: '', password: '', company_name: '', contact_name: '', email: '', phone: '', is_active: true })
   const [msg, setMsg] = useState('')
+  const [limitCount, setLimitCount] = useState(30)
+  const [isAllMode, setIsAllMode] = useState(false)
 
-  useEffect(() => { fetchAgents() }, [])
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAllMode(new URLSearchParams(window.location.search).get('all') === 'true')
+    }
+  }, [])
+
+  useEffect(() => { fetchAgents() }, [limitCount])
 
   const fetchAgents = async () => {
-    const { data } = await supabase.from('agent_users').select('*').order('created_at', { ascending: false })
+    const allMode = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('all') === 'true'
+      : false
+    let query = supabase.from('agent_users').select('*').order('created_at', { ascending: false })
+    if (!allMode) query = query.limit(limitCount)
+    const { data } = await query
     setAgents(data || [])
     setLoading(false)
   }
@@ -59,6 +72,45 @@ export default function AgentsPage() {
           ＋ 新規登録
         </button>
       </div>
+      {/* 表示件数切り替え */}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, marginRight: 4 }}>表示件数：</span>
+        {[30, 50, 100].map(n => (
+          <button key={n} onClick={() => setLimitCount(n)}
+            style={{
+              padding: '5px 14px',
+              borderRadius: 50,
+              border: '1.5px solid',
+              borderColor: limitCount === n && !isAllMode ? '#1a3a5c' : '#d1d5db',
+              background: limitCount === n && !isAllMode ? '#1a3a5c' : 'white',
+              color: limitCount === n && !isAllMode ? 'white' : '#374151',
+              fontSize: 12,
+              fontWeight: limitCount === n && !isAllMode ? 700 : 400,
+              cursor: 'pointer',
+            }}>
+            {n}件
+          </button>
+        ))}
+        <button
+          onClick={() => window.open('/agents?all=true', '_blank')}
+          style={{
+            padding: '5px 14px',
+            borderRadius: 50,
+            border: '1.5px solid',
+            borderColor: isAllMode ? '#7c3aed' : '#d1d5db',
+            background: isAllMode ? '#7c3aed' : 'white',
+            color: isAllMode ? 'white' : '#374151',
+            fontSize: 12,
+            fontWeight: isAllMode ? 700 : 400,
+            cursor: 'pointer',
+          }}>
+          100件以上 ↗
+        </button>
+        {isAllMode ? (
+          <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 700, marginLeft: 4 }}>全件表示モード</span>
+        ) : null}
+      </div>
+
       {loading ? <p>読み込み中...</p> : (
         <div style={{ background: 'white', borderRadius: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
