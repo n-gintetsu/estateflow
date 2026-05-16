@@ -107,9 +107,16 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   const saveOurPrice = async () => {
     if (!inquiry) return
     setSaving(true)
-    await supabase.from('sale_inquiries').update({ our_price: ourPrice }).eq('id', inquiry.id)
+    const { error } = await supabase
+      .from('sale_inquiries')
+      .update({ our_price: ourPrice })
+      .eq('id', inquiry.id)
     setSaving(false)
-    alert('査定額を保存しました')
+    if (error) {
+      alert('保存に失敗しました: ' + error.message)
+    } else {
+      alert('査定額を保存しました')
+    }
   }
 
   const handlePrint = () => {
