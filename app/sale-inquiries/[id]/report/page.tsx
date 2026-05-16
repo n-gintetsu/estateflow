@@ -93,8 +93,10 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       })
       const data = await res.json()
       if (data.result) {
-        setAiResult(data.result)
-        await supabase.from('sale_inquiries').update({ ai_assessment: JSON.stringify(data.result) }).eq('id', inquiry.id)
+        const result = data.result
+        if (!Array.isArray(result.tags)) result.tags = []
+        setAiResult(result)
+        await supabase.from('sale_inquiries').update({ ai_assessment: JSON.stringify(result) }).eq('id', inquiry.id)
       }
     } catch (e) {
       alert('AI生成に失敗しました')
