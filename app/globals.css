@@ -26,6 +26,8 @@ body {
 }
 
 @media print {
+  header,
+  .app-sidebar,
   .sidebar,
   [class*="sidebar"],
   [class*="Sidebar"],
@@ -33,10 +35,14 @@ body {
   aside {
     display: none !important;
   }
+
   body {
+    background: white !important;
+    color: black !important;
     margin: 0 !important;
     padding: 0 !important;
   }
+
   main,
   [class*="content"],
   [class*="Content"] {
@@ -44,5 +50,9 @@ body {
     padding-left: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+  }
+
+  @page {
+    margin: 15mm;
   }
 }

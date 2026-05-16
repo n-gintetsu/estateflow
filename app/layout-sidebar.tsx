@@ -49,7 +49,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <div style={{ width: 200, background: 'white', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', padding: 16, minHeight: '100vh' }}>
+      <div className="app-sidebar" style={{ width: 200, background: 'white', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', padding: 16, minHeight: '100vh' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, padding: '8px 0' }}>
           <div style={{ width: 32, height: 32, background: '#1e40af', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>不</div>
           <span style={{ fontWeight: 'bold', color: '#1e293b' }}>EstateFlow</span>
