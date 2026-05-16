@@ -6,7 +6,9 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 
 export async function POST(req: NextRequest) {
-  const { inquiryId, reportUrl } = await req.json()
+  const { inquiryId } = await req.json()
+
+  const publicReportUrl = `https://gintetsu-fudosan.co.jp/sale-report/${inquiryId}`
 
   const { data: inquiry } = await supabase.from('sale_inquiries').select('*').eq('id', inquiryId).single()
   if (!inquiry || !inquiry.email) return NextResponse.json({ error: 'メールなし' }, { status: 400 })
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
               以下のリンクより、AI査定書をご確認いただけます。
             </p>
             <div style="text-align:center;margin:24px 0;">
-              <a href="${reportUrl}" style="background:#c9a84c;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">
+              <a href="${publicReportUrl}" style="background:#c9a84c;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">
                 査定書を確認する →
               </a>
             </div>
