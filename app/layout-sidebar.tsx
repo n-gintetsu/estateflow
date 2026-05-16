@@ -18,6 +18,7 @@ const navGroups = [
     { id: 'company-inquiries', label: '企業者問い合わせ', icon: '🏢', href: '/company-inquiries' },
     { id: 'ad-inquiries', label: '仲介業者問い合わせ', icon: '💼', href: '/ad-inquiries' },
     { id: 'sale-inquiries', label: '📈 戸建買取査定申込', href: '/sale-inquiries' },
+    { id: 'market-reports', label: '📊 市場レポート管理', href: '/market-reports' },
   ]},
   { group: 'コンテンツ', icon: '✏️', items: [
     { id: 'columns', label: 'コラム管理', icon: '✏️', href: '/columns' },
