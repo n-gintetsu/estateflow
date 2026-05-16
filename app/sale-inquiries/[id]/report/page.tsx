@@ -33,7 +33,7 @@ type SaleInquiry = {
   ai_price: string | null
 }
 
-export default function ReportPage({ params }: { params: { id: string } }) {
+export default function ReportPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const [inquiry, setInquiry] = useState<SaleInquiry | null>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
@@ -59,14 +59,18 @@ export default function ReportPage({ params }: { params: { id: string } }) {
   const printRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    fetchInquiry()
+    const resolveParams = async () => {
+      const resolved = await Promise.resolve(params)
+      await fetchInquiry(resolved.id)
+    }
+    resolveParams()
   }, [])
 
-  const fetchInquiry = async () => {
+  const fetchInquiry = async (id: string) => {
     const { data } = await supabase
       .from('sale_inquiries')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
     if (data) {
       setInquiry(data)
