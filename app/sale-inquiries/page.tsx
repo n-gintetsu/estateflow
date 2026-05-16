@@ -120,6 +120,13 @@ export default function SaleInquiriesPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <span style={{ fontSize: '13px', color: '#6b7280' }}>{item.address}</span>
                   <span style={{ fontSize: '12px', color: '#9ca3af' }}>{new Date(item.created_at).toLocaleDateString('ja-JP')}</span>
+                  <a
+                    href={`/sale-inquiries/${item.id}/report`}
+                    onClick={e => e.stopPropagation()}
+                    style={{ display: 'inline-block', padding: '4px 12px', background: '#c9a84c', color: 'white', borderRadius: 6, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
+                  >
+                    📄 査定書
+                  </a>
                 </div>
               </div>
             </div>
