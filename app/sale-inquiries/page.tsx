@@ -24,6 +24,8 @@ type SaleInquiry = {
   reason: string | null
   timeline: string | null
   message: string | null
+  floor_plan_urls: string[] | null
+  photo_urls: string[] | null
   status: string
 }
 
@@ -174,6 +176,47 @@ export default function SaleInquiriesPage() {
               <div style={{ marginBottom: '12px' }}>
                 <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 2px', fontWeight: 600 }}>備考・ご要望</p>
                 <p style={{ fontSize: '14px', color: '#1f2937', margin: 0, whiteSpace: 'pre-wrap' }}>{selected.message}</p>
+              </div>
+            ) : null}
+
+            {selected.floor_plan_urls !== null && selected.floor_plan_urls.length > 0 ? (
+              <div style={{ marginBottom: '12px' }}>
+                <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 6px', fontWeight: 600 }}>📐 間取り図</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {selected.floor_plan_urls.map((url, i) => (
+                    <a
+                      key={i}
+                      href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/property-images/${url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: '13px', color: '#1a3a5c', textDecoration: 'underline', wordBreak: 'break-all' }}
+                    >
+                      📄 間取り図 {i + 1}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {selected.photo_urls !== null && selected.photo_urls.length > 0 ? (
+              <div style={{ marginBottom: '12px' }}>
+                <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 6px', fontWeight: 600 }}>📷 物件写真</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {selected.photo_urls.map((url, i) => (
+                    <a
+                      key={i}
+                      href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/property-images/${url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/property-images/${url}`}
+                        alt={`物件写真${i + 1}`}
+                        style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }}
+                      />
+                    </a>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>
