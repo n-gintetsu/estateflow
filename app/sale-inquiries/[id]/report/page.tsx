@@ -160,6 +160,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         @media print {
           .no-print { display: none !important; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          nav, aside, header, [class*="sidebar"], [class*="Sidebar"], [class*="layout"], [class*="Layout"] { display: none !important; }
+          main, [class*="main"], [class*="Main"] { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+          .estateflow-sidebar { display: none !important; }
         }
       `}</style>
 
