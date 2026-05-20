@@ -75,7 +75,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           </div>
         ))}
         <div style={{ marginTop: 'auto' }}>
-          <button onClick={async () => { const { createClient } = await import('@supabase/supabase-js'); const s = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!); await s.auth.signOut(); window.location.href = '/login'; }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'transparent', color: '#ef4444', fontWeight: 600, fontSize: 14, width: '100%' }}>
+          <button onClick={async () => { await fetch('/api/logout', { method: 'POST' }); window.location.href = '/login'; }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'transparent', color: '#ef4444', fontWeight: 600, fontSize: 16, width: '100%' }}>
             <span>🚪</span><span>ログアウト</span>
           </button>
         </div>
