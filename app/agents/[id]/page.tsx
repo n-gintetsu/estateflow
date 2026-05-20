@@ -34,7 +34,7 @@ export default function AgentDetailPage() {
   }
 
   const fetchLogs = async () => {
-    const { data } = await supabase.from('agent_activity_logs').select('*').eq('agent_id', id).order('created_at', { ascending: false })
+    const { data } = await supabase.from('ad_inquiries').select('inquiry_type, property_name, created_at').eq('agent_id', id).order('created_at', { ascending: false })
     setLogs(data || [])
   }
 
@@ -171,18 +171,16 @@ export default function AgentDetailPage() {
             <thead>
               <tr style={{ background: '#f9fafb' }}>
                 <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>日時</th>
-                <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>アクション</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>問い合わせ種別</th>
                 <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>物件名</th>
-                <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>詳細</th>
               </tr>
             </thead>
             <tbody>
-              {logs.map(log => (
-                <tr key={log.id}>
+              {logs.map((log, i) => (
+                <tr key={i}>
                   <td style={{ padding: '8px 12px', border: '1px solid #e5e7eb' }}>{new Date(log.created_at).toLocaleString('ja-JP')}</td>
-                  <td style={{ padding: '8px 12px', border: '1px solid #e5e7eb' }}>{log.action_type}</td>
+                  <td style={{ padding: '8px 12px', border: '1px solid #e5e7eb' }}>{log.inquiry_type || '—'}</td>
                   <td style={{ padding: '8px 12px', border: '1px solid #e5e7eb' }}>{log.property_name || '—'}</td>
-                  <td style={{ padding: '8px 12px', border: '1px solid #e5e7eb' }}>{log.detail || '—'}</td>
                 </tr>
               ))}
             </tbody>
