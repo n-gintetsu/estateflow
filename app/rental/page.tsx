@@ -134,6 +134,7 @@ export default function RentalProperties() {
       features: form.features ? (Array.isArray(form.features) ? form.features : form.features.split('、').map((s: string) => s.trim()).filter(Boolean)) : null,
       description: form.description || null,
     status: form.status, published: form.published,
+    visibility: form.visibility || 'both',
     document_urls: documentUrls.length > 0 ? documentUrls : (editItem?.document_urls || null),
       images: [...uploadPreviews.filter(p => p.startsWith('http')), ...imageUrls].length > 0 ? [...uploadPreviews.filter(p => p.startsWith('http')), ...imageUrls] : null,
     floor_plan_url: form.floor_plan_url || (editItem?.floor_plan_url || null),
