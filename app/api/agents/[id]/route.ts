@@ -15,7 +15,7 @@ export async function GET(
   const { id } = await params
   const { data, error } = await supabase
     .from('agent_users')
-    .select('*')
+    .select('id, agent_code, company_name, contact_name, email, phone, is_active, status, created_at, internal_memo, address, street_address, building_name, department, mobile, license_type, license_prefecture, license_number, card_url')
     .eq('id', id)
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

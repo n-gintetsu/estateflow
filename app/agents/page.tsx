@@ -33,12 +33,15 @@ export default function AgentsPage() {
   }
 
   const handleSave = async () => {
-    if (!form.agent_code || !form.password || !form.company_name) { setMsg('業者ID・パスワード・会社名は必須です'); return }
+    if (!form.agent_code || !form.company_name) { setMsg('業者IDと会社名は必須です'); return }
+    if (!editItem && !form.password) { setMsg('新規登録時はパスワードが必須です'); return }
     if (editItem) {
+      const patch: any = { agent_code: form.agent_code, company_name: form.company_name, contact_name: form.contact_name, email: form.email, phone: form.phone, is_active: form.is_active }
+      if (form.password) patch.password = form.password
       await fetch(`/api/agents/${editItem.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(patch),
       })
     } else {
       await fetch('/api/agents', {
@@ -143,7 +146,7 @@ export default function AgentsPage() {
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button onClick={() => { setEditItem(a); setForm({ agent_code: a.agent_code, password: a.password, company_name: a.company_name, contact_name: a.contact_name||'', email: a.email||'', phone: a.phone||'', is_active: a.is_active }); setShowForm(true) }}
+                      <button onClick={() => { setEditItem(a); setForm({ agent_code: a.agent_code, password: '', company_name: a.company_name, contact_name: a.contact_name||'', email: a.email||'', phone: a.phone||'', is_active: a.is_active }); setShowForm(true) }}
                         style={{ padding: '4px 12px', background: '#f1f5f9', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>編集</button>
                               <button onClick={() => router.push(`/agents/${a.id}`)}
                                 style={{ padding: '4px 12px', background: '#dbeafe', color: '#1d4ed8', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>詳細</button>
@@ -164,7 +167,7 @@ export default function AgentsPage() {
             {msg && <p style={{ color: '#ef4444', fontSize: 13, marginBottom: 12 }}>{msg}</p>}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
               <div><label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>業者ID</label><input style={inp} value={form.agent_code} onChange={e => setForm(f=>({...f,agent_code:e.target.value}))} placeholder="AGENT001" /></div>
-              <div><label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>パスワード</label><input style={inp} value={form.password} onChange={e => setForm(f=>({...f,password:e.target.value}))} /></div>
+              <div><label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>パスワード</label><input type="password" style={inp} value={form.password} onChange={e => setForm(f=>({...f,password:e.target.value}))} placeholder={editItem ? '変更する場合のみ入力' : ''} /></div>
             </div>
             <div style={{ marginBottom: 12 }}><label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4 }}>会社名</label><input style={inp} value={form.company_name} onChange={e => setForm(f=>({...f,company_name:e.target.value}))} placeholder="○○不動産株式会社" /></div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>

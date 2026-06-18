@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   if (searchParams.get('list') === 'full') {
     let query = supabase
       .from('agent_users')
-      .select('*')
+      .select('id, agent_code, company_name, contact_name, email, phone, is_active, status, created_at, internal_memo')
       .order('created_at', { ascending: false })
     const limit = searchParams.get('limit')
     if (limit) query = query.limit(Number(limit))
