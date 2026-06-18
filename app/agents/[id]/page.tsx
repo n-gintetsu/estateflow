@@ -7,6 +7,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
+// supabaseはad_inquiries取得にのみ使用。agent_usersはAPI経由。
 
 export default function AgentDetailPage() {
   const params = useParams()
@@ -20,16 +21,14 @@ export default function AgentDetailPage() {
   const [msg, setMsg] = useState('')
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) window.location.href = '/login'
-    })
     fetchAgent()
     fetchLogs()
   }, [])
 
   const fetchAgent = async () => {
-    const { data } = await supabase.from('agent_users').select('*').eq('id', id).single()
-    if (data) { setAgent(data); setMemo(data.internal_memo || '') }
+    const res = await fetch(`/api/agents/${id}`)
+    const data = await res.json()
+    if (data && !data.error) { setAgent(data); setMemo(data.internal_memo || '') }
     setLoading(false)
   }
 
@@ -40,7 +39,11 @@ export default function AgentDetailPage() {
 
   const handleStatusChange = async (status: string) => {
     const is_active = status === 'active'
-  await supabase.from('agent_users').update({ status, is_active }).eq('id', id)
+    await fetch(`/api/agents/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, is_active }),
+    })
     setAgent((prev: any) => ({ ...prev, status }))
     setMsg('ステータスを更新しました')
     setTimeout(() => setMsg(''), 3000)
@@ -60,7 +63,11 @@ export default function AgentDetailPage() {
   }
 
   const handleMemoSave = async () => {
-    await supabase.from('agent_users').update({ internal_memo: memo }).eq('id', id)
+    await fetch(`/api/agents/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ internal_memo: memo }),
+    })
     setMsg('メモを保存しました')
     setTimeout(() => setMsg(''), 3000)
   }

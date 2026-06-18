@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
         supabase.from('properties').select('*', { count: 'exact', head: true }),
         supabase.from('rental_properties').select('*', { count: 'exact', head: true }),
         supabase.from('investment_properties').select('*', { count: 'exact', head: true }),
-        supabase.from('agent_users').select('*', { count: 'exact', head: true }),
+        fetch('/api/agents?count=1').then(r => r.json()).then(d => ({ count: d.count ?? 0 })),
         supabase.from('schedules').select('*', { count: 'exact', head: true }),
         supabase.from('agent_documents').select('*', { count: 'exact', head: true }),
       ]);

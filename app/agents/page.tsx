@@ -1,12 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 export default function AgentsPage() {
   const router = useRouter()
@@ -31,9 +25,9 @@ export default function AgentsPage() {
     const allMode = typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('all') === 'true'
       : false
-    let query = supabase.from('agent_users').select('*').order('created_at', { ascending: false })
-    if (!allMode) query = query.limit(limitCount)
-    const { data } = await query
+    const url = allMode ? '/api/agents?list=full' : `/api/agents?list=full&limit=${limitCount}`
+    const res = await fetch(url)
+    const data = await res.json()
     setAgents(data || [])
     setLoading(false)
   }
@@ -41,9 +35,17 @@ export default function AgentsPage() {
   const handleSave = async () => {
     if (!form.agent_code || !form.password || !form.company_name) { setMsg('業者ID・パスワード・会社名は必須です'); return }
     if (editItem) {
-      await supabase.from('agent_users').update(form).eq('id', editItem.id)
+      await fetch(`/api/agents/${editItem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
     } else {
-      await supabase.from('agent_users').insert([form])
+      await fetch('/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
     }
     setShowForm(false); setEditItem(null)
     setForm({ agent_code: '', password: '', company_name: '', contact_name: '', email: '', phone: '', is_active: true })
@@ -52,12 +54,16 @@ export default function AgentsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('削除しますか？')) return
-    await supabase.from('agent_users').delete().eq('id', id)
+    await fetch(`/api/agents?id=${id}`, { method: 'DELETE' })
     fetchAgents()
   }
 
   const handleToggle = async (id: string, current: boolean) => {
-    await supabase.from('agent_users').update({ is_active: !current }).eq('id', id)
+    await fetch(`/api/agents/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !current }),
+    })
     fetchAgents()
   }
 
