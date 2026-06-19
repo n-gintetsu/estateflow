@@ -17,7 +17,7 @@ export default function Home() {
         { data: inquiries }
       ] = await Promise.all([
         supabase.from('properties').select('*', { count: 'exact', head: true }),
-        supabase.from('rental_properties').select('*', { count: 'exact', head: true }),
+        fetch('/api/rental-properties?count=1').then(r => r.json()).then(d => ({ count: d.count ?? 0 })),
         supabase.from('document_requests').select('*', { count: 'exact', head: true }),
         supabase.from('schedules').select('*', { count: 'exact', head: true }),
         supabase.from('document_requests').select('*').order('created_at', { ascending: false }).limit(5),

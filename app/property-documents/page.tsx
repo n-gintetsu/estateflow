@@ -81,7 +81,7 @@ export default function PropertyDocumentsPage() {
 
     const [sale, rental, inv] = await Promise.all([
       supabase.from('properties').select('id, name'),
-      supabase.from('rental_properties').select('id, name'),
+      fetch('/api/rental-properties').then(r => r.json()).then(rows => ({ data: Array.isArray(rows) ? rows : [] })),
       supabase.from('investment_properties').select('id, name'),
     ])
 

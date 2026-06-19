@@ -33,7 +33,7 @@ export default function PropertyProgressPage() {
   const fetchAll = async () => {
     const [{ data: p }, { data: r }, { data: i }, { data: prog }] = await Promise.all([
       supabase.from('properties').select('id, name, address, price').eq('published', true),
-      supabase.from('rental_properties').select('id, name, address, rent').eq('published', true),
+      fetch('/api/rental-properties').then(r => r.json()).then(rows => ({ data: (Array.isArray(rows) ? rows : []).filter(x => x.published) })),
       supabase.from('investment_properties').select('id, name, address, yield_rate').eq('published', true),
       supabase.from('property_progress').select('*'),
     ])
