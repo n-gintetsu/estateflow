@@ -62,8 +62,8 @@ export default function RentalProperties() {
 
   const fetchItems = async () => {
     setLoading(true)
-    const { data } = await supabase.from('rental_properties').select('*').order('created_at', { ascending: false })
-    setItems(data || [])
+    const data = await fetch('/api/rental-properties').then(r => r.json()).then(rows => Array.isArray(rows) ? rows : []).catch(() => [])
+    setItems(data)
     setLoading(false)
   }
 
@@ -148,6 +148,7 @@ export default function RentalProperties() {
     doc_auto_send_agent: form.doc_auto_send_agent || false,
     }
     let error
+    let newId: any = null
     if (editItem) {
       // UPDATE は service_role キーを使う API ルート経由（rental_properties に UPDATE ポリシー未設定のため）
       const res = await fetch('/api/rental-properties', {
@@ -160,8 +161,17 @@ export default function RentalProperties() {
         error = { message: body.error || 'Update failed' } as Error
       }
     } else {
-      const { error: e } = await supabase.from('rental_properties').insert([payload])
-      error = e
+        const res = await fetch('/api/rental-properties', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const created = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          error = { message: created.error || 'Insert failed' } as Error
+        } else {
+          newId = created?.id ?? null
+        }
     }
   if (error) { setMsg(`❌ エラー： ${error.message}`) }
   else {
@@ -171,8 +181,7 @@ export default function RentalProperties() {
       if (editItem?.id) {
         propertyId = String(editItem.id)
       } else {
-        const { data: latest } = await supabase.from('rental_properties').select('id').order('id', { ascending: false }).limit(1).single()
-        if (latest) propertyId = String(latest.id)
+          if (newId) propertyId = String(newId)
       }
       if (propertyId) {
         await supabase.from('property_documents').delete().eq('property_id', propertyId).eq('property_type', 'rental')
@@ -197,7 +206,7 @@ export default function RentalProperties() {
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`「${name}」を削除しますか？`)) return
-    await supabase.from('rental_properties').delete().eq('id', id)
+    await fetch('/api/rental-properties?id=' + id, { method: 'DELETE' })
     fetchItems()
   }
 
