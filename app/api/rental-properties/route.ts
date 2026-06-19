@@ -14,6 +14,15 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
+  // 件数だけ欲しい場合（analytics等）
+  if (searchParams.get('count')) {
+    const { count, error } = await supabase
+      .from('rental_properties')
+      .select('*', { count: 'exact', head: true })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ count: count ?? 0 })
+  }
+
   if (id) {
     const { data, error } = await supabase
       .from('rental_properties')

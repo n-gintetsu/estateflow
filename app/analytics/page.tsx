@@ -17,7 +17,7 @@ export default function AnalyticsPage() {
     const fetchStats = async () => {
       const [p, r, i, a, s, d] = await Promise.all([
         supabase.from('properties').select('*', { count: 'exact', head: true }),
-        supabase.from('rental_properties').select('*', { count: 'exact', head: true }),
+        fetch('/api/rental-properties?count=1').then(r => r.json()).then(d => ({ count: d.count ?? 0 })),
         supabase.from('investment_properties').select('*', { count: 'exact', head: true }),
         fetch('/api/agents?count=1').then(r => r.json()).then(d => ({ count: d.count ?? 0 })),
         supabase.from('schedules').select('*', { count: 'exact', head: true }),
