@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const PUBLIC_PATHS = ['/login', '/api/login', '/api/trigger-workflow']
+const PUBLIC_PATHS = ['/login', '/api/login', '/api/trigger-workflow', '/api/linebot']
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
