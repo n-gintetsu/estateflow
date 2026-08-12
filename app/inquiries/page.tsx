@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { supabase } from '../../src/app/lib/supabase'
 
 const statusOptions = ['未対応', '対応中', '対応済み', 'キャンセル']
 
@@ -41,19 +40,18 @@ export default function Inquiries() {
     const allMode = typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('all') === 'true'
       : false
-    let query = supabase
-      .from('document_requests')
-      .select('*')
-      .order('created_at', { ascending: false })
-    if (!allMode) query = query.limit(limitCount)
-    const { data } = await query
-    setInquiries(data || [])
+    const data = await fetch(`/api/document-requests${allMode ? '' : `?limit=${limitCount}`}`).then(r => r.json())
+    setInquiries(Array.isArray(data) ? data : [])
     setLoading(false)
   }
 
   const updateStatus = async (id: string, status: string) => {
     setUpdatingId(id)
-    await supabase.from('document_requests').update({ status }).eq('id', id)
+    await fetch('/api/document-requests', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    })
     setInquiries(prev => prev.map(i => i.id === id ? { ...i, status } : i))
     setUpdatingId(null)
   }
