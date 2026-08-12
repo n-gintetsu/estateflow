@@ -6,7 +6,7 @@ type Notice = {
   title: string
   body: string
   target_type: string
-  agent_id: string | null
+  target_user_ids: string[] | null
   priority: string
   status: string
   published_at: string | null
@@ -44,6 +44,7 @@ export default function NoticesPage() {
   const [agentId, setAgentId] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   const fetchNotices = async () => {
     setLoading(true)
@@ -87,6 +88,7 @@ export default function NoticesPage() {
     e.preventDefault()
     if (targetMode === 'specific' && !agentId) return
     setSubmitting(true)
+    setErrorMsg('')
     try {
       const res = await fetch('/api/notices', {
         method: 'POST',
@@ -97,12 +99,13 @@ export default function NoticesPage() {
           priority: form.priority,
           target_type: 'agent',
           status: 'published',
-          agent_id: targetMode === 'specific' ? agentId : null,
+          target_user_ids: targetMode === 'specific' ? [agentId] : null,
         }),
       })
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}))
         console.error('[notices POST] error:', res.status, errData)
+        setErrorMsg(`⚠️ 送信に失敗しました${errData.error ? `：${errData.error}` : ''}`)
         return
       }
       resetForm()
@@ -112,6 +115,7 @@ export default function NoticesPage() {
       fetchNotices()
     } catch (err) {
       console.error('[notices POST] network error:', err)
+      setErrorMsg('⚠️ 送信に失敗しました：通信エラー')
     } finally {
       setSubmitting(false)
     }
@@ -126,9 +130,10 @@ export default function NoticesPage() {
   const pStyle = (p: string) => PRIORITY_STYLES[p] || PRIORITY_STYLES.normal
 
   const getAgentLabel = (notice: Notice) => {
-    if (!notice.agent_id) return '🏢 全業者'
-    const partner = partners.find(p => p.id === notice.agent_id)
-    return partner ? `🏢 ${partner.company_name}` : '🏢 特定業者'
+    const ids = notice.target_user_ids
+    if (!ids || ids.length === 0) return '🏢 全業者'
+    const names = ids.map(id => partners.find(p => p.id === id)?.company_name || '特定業者')
+    return `🏢 ${names.join('、')}`
   }
 
   return (
@@ -151,6 +156,12 @@ export default function NoticesPage() {
         {successMsg ? (
           <div style={{ marginBottom: 20, padding: '12px 20px', background: '#f0fdf4', color: '#16a34a', borderRadius: 8, fontWeight: 600, fontSize: 14 }}>
             {successMsg}
+          </div>
+        ) : null}
+
+        {errorMsg ? (
+          <div style={{ marginBottom: 20, padding: '12px 20px', background: '#fef2f2', color: '#dc2626', borderRadius: 8, fontWeight: 600, fontSize: 14 }}>
+            {errorMsg}
           </div>
         ) : null}
 

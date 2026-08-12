@@ -11,7 +11,7 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from('notices')
-    .select('id, target_type, agent_id, title, body, priority, status, created_at, published_at')
+    .select('id, target_type, target_user_ids, title, body, priority, status, created_at, published_at')
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -23,30 +23,29 @@ export async function POST(request: NextRequest) {
 
   if (!payload.title) return NextResponse.json({ error: 'title is required' }, { status: 400 })
 
-  const base = {
-    title: payload.title,
-    body: payload.body || '',
-    target_type: payload.target_type || 'agent',
-    priority: payload.priority || 'normal',
-    status: payload.status || 'published',
-    published_at: payload.status === 'published' ? new Date().toISOString() : null,
+  // 宛先は target_user_ids に保存する。
+  //   全業者   … null（既存データも null のため、表示側は「null なら全業者」で統一できる）
+  //   特定業者 … 業者IDの配列
+  const rawTargets = payload.target_user_ids
+  if (rawTargets != null && !Array.isArray(rawTargets)) {
+    return NextResponse.json({ error: 'target_user_ids must be an array or null' }, { status: 400 })
   }
+  const targetUserIds =
+    Array.isArray(rawTargets) && rawTargets.length > 0 ? rawTargets.map(String) : null
 
-  // agent_id カラムが存在する場合のみ含める（存在しなければ除外して再試行）
-  let { data, error } = await supabase
+  const { data, error } = await supabase
     .from('notices')
-    .insert([{ ...base, agent_id: payload.agent_id ?? null }])
+    .insert([{
+      title: payload.title,
+      body: payload.body || '',
+      target_type: payload.target_type || 'agent',
+      target_user_ids: targetUserIds,
+      priority: payload.priority || 'normal',
+      status: payload.status || 'published',
+      published_at: payload.status === 'published' ? new Date().toISOString() : null,
+    }])
     .select()
     .single()
-
-  if (error && error.message.includes('agent_id')) {
-    console.warn('[notices POST] agent_id column not found, retrying without it')
-    ;({ data, error } = await supabase
-      .from('notices')
-      .insert([base])
-      .select()
-      .single())
-  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data, { status: 201 })
