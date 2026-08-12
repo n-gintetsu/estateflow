@@ -1,12 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 type SaleInquiry = {
   id: string
@@ -41,16 +35,17 @@ export default function SaleInquiriesPage() {
 
   const fetchData = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('sale_inquiries')
-      .select('*')
-      .order('created_at', { ascending: false })
-    setItems(data || [])
+    const data = await fetch('/api/sale-inquiries').then(r => r.json())
+    setItems(Array.isArray(data) ? data : [])
     setLoading(false)
   }
 
   const updateStatus = async (id: string, status: string) => {
-    await supabase.from('sale_inquiries').update({ status }).eq('id', id)
+    await fetch('/api/sale-inquiries', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    })
     setItems(items.map(i => i.id === id ? { ...i, status } : i))
     if (selected && selected.id === id) setSelected({ ...selected, status })
   }

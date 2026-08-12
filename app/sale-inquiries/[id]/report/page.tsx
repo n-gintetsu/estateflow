@@ -1,13 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 type SaleInquiry = {
   id: string
@@ -67,11 +61,8 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   }, [])
 
   const fetchInquiry = async (id: string) => {
-    const { data } = await supabase
-      .from('sale_inquiries')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const res = await fetch(`/api/sale-inquiries?id=${encodeURIComponent(id)}`)
+    const data = res.ok ? await res.json() : null
     if (data) {
       setInquiry(data)
       if (data.our_price) setOurPrice(data.our_price)
@@ -96,7 +87,11 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         const result = data.result
         if (!Array.isArray(result.tags)) result.tags = []
         setAiResult(result)
-        await supabase.from('sale_inquiries').update({ ai_assessment: JSON.stringify(result) }).eq('id', inquiry.id)
+        await fetch('/api/sale-inquiries', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: inquiry.id, ai_assessment: JSON.stringify(result) }),
+        })
       }
     } catch (e) {
       alert('AI生成に失敗しました')
@@ -107,13 +102,15 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   const saveOurPrice = async () => {
     if (!inquiry) return
     setSaving(true)
-    const { error } = await supabase
-      .from('sale_inquiries')
-      .update({ our_price: ourPrice })
-      .eq('id', inquiry.id)
+    const res = await fetch('/api/sale-inquiries', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: inquiry.id, our_price: ourPrice }),
+    })
     setSaving(false)
-    if (error) {
-      alert('保存に失敗しました: ' + error.message)
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: String(res.status) }))
+      alert('保存に失敗しました: ' + error)
     } else {
       alert('査定額を保存しました')
     }
